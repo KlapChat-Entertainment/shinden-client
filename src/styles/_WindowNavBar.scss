@@ -1,0 +1,42 @@
+.windowNavBar {
+    height: 40px;
+    width: 100%;
+    background: #04293A;
+    display: flex;
+    padding: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    .windowButtons {
+        color: white;
+        font-size: 2rem;
+        -webkit-app-region: no-drag;
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        align-items: center;
+        ul.links {
+            display: flex;
+            padding: 0 5rem;
+            font-size: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+            li {
+                a {
+                    color: white;
+                    text-decoration: none;
+                    font-family: var(--text-font-family);
+                }
+                a:visited {
+                    color: white;
+                }
+            }
+        }
+        #min, #close {
+            cursor: pointer;
+        }
+    }
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, .2);
+    -webkit-app-region: drag;
+}

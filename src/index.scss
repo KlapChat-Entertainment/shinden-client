@@ -1,0 +1,48 @@
+@use "./styles/WindowNavBar";
+@use "./styles/Logo";
+@use "./styles/HomeMain";
+@use "./styles/InputText";
+@use "./styles/Buttons";
+@use "./styles/SearchResultMain";
+@use "./styles/Loading";
+@use "./styles/AnimeMain";
+@use "./styles/PlayersMain";
+@use "./styles/PlayerMain";
+@import url('https://fonts.googleapis.com/css2?family=Island+Moments&family=Lato&family=Tilt+Warp&display=swap');
+
+:root {
+    --logo-font-family: 'Island Moments', cursive;
+    //--logo-font-family: 'Tilt Warp', cursive;
+    --logo-color: white;
+    --text-font-family: 'Lato', sans-serif;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    height: 100vh;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.mainContainer {
+    display: grid;
+    grid-template-rows: 40px 660px;
+    height: 100%;
+    background: #041C32;
+}
+
+img {
+    pointer-events: none;
+    user-select: none;
+}
+
+a {
+    color: #ECB365;
+}

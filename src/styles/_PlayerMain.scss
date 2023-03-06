@@ -1,0 +1,29 @@
+.playerMain {
+    font-family: var(--text-font-family);
+    color: white;
+    padding: 0 1rem 1rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    transition: all 2s ease;
+    overflow: hidden;
+    background: black;
+
+    nav {
+        padding: 0.5rem 0 0 0;
+        font-size: 1.5rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        a {
+            text-decoration: none;
+        }
+    }
+
+    .videoPlayerContainer {
+        margin: auto;
+        border: #ECB365 2px solid;
+    }
+
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shinden Client <span id="version">3.0</span></title>
+    <link rel="stylesheet" href="../index.css">
+    <script type="module" src="../js/anime.js"></script>
+</head>
+<body>
+    <div class="mainContainer">
+        <div class="windowNavBar">
+            <div class="logoLoading">
+                <h1 class="logo">
+                    Shinden Client 3.0
+                </h1>
+                <div class="loading">
+                    <svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                    viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
+                        <path fill="#fff" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
+                        <animateTransform 
+                            attributeName="transform" 
+                            attributeType="XML" 
+                            type="rotate"
+                            dur="1s" 
+                            from="0 50 50"
+                            to="360 50 50" 
+                            repeatCount="indefinite" />
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="windowButtons">
+                <ul class="links">
+                    <li>
+                        <a href="./home.html">Wyszukiwarka</a>
+                    </li>
+                    <li>
+                        <a href="./home.html">Ustawienia</a>
+                    </li>
+                    <li>
+                        <a href="./home.html">Ulubione</a>
+                    </li>
+                </ul>
+                <div id="min">&#95;</div>
+                <div id="close">&#10006;</div>
+            </div>
+        </div>
+        <main class="animeMain">
+            <nav>
+                <a href="./searchResults.html">- Powrót -</a>
+                <span id="favButton">- Dodaj do ulubionych -</span>
+            </nav>
+            <div class="topSection">
+                <div class="imageContainer">
+                    <img src="" alt="">
+                </div>
+                <div class="episodesList">
+                    <h1 class="title">Tytuł</h1>
+                    <hr>
+                    <ol id="episodeOl">
+                        <li>Trwa ładowanie odcinków, proszę czekać</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="botSection">
+                <p>Trwa ładowanie opisu, proszę czekać</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
