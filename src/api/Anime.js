@@ -4,7 +4,7 @@ class Anime {
     imageLink;
     animeType;
     rating;
-    episoded;
+    episodes;
     description;
     episodeArray;
     constructor(name, linkToSeries, imageLink, animeType, rating, episodes, description) {
