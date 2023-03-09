@@ -1,12 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const searchAnime = require("./api/searchAnime");
 const path = require('path');
-const getDescription = require('./api/getDescription');
-const getEpisodes = require('./api/getEpisodes');
 const { ElectronBlocker } = require('@cliqz/adblocker-electron');
-const getPlayers = require('./api/getPlayers');
-const getPlayer = require('./api/getPlayer');
+const ShindenAPI = require('./api/scrappers/Shinden');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -87,26 +83,26 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 ipcMain.handle("searchAnime", async(event, data)=>{
-  const DATA = await searchAnime(data);
+  const DATA = await ShindenAPI.searchAnime(data);
   return DATA;
 });
 
 ipcMain.handle("getDescription", async(event, data)=>{
-  const DATA = await getDescription(data);
+  const DATA = await ShindenAPI.getDescription(data);
   return DATA;
 });
 
 ipcMain.handle("getEpisodes", async(event, data)=>{
-  const DATA = await getEpisodes(data);
+  const DATA = await ShindenAPI.getEpisodes(data);
   return DATA;
 });
 
 ipcMain.handle("getPlayers", async(event, data)=>{
-  const DATA = await getPlayers(data);
+  const DATA = await ShindenAPI.getPlayers(data);
   return DATA;
 });
 
 ipcMain.handle("getPlayer", async(event, data)=>{
-  const DATA = await getPlayer(data);
+  const DATA = await ShindenAPI.getPlayer(data);
   return DATA;
 });
