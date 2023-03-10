@@ -11,13 +11,18 @@ const DIV = document.createElement("div");
 
 DIV.innerHTML = PLAYER_HTML;
 
-let link = DIV.firstChild.getAttribute("src");
-if (link.charAt(0) == "/" && link.charAt(1) == "/") {
-    link = link.replace("//", "https://");
+if(DIV.firstChild) {
+    let link = DIV.firstChild.getAttribute("src");
+    if (link.charAt(0) == "/" && link.charAt(1) == "/") {
+        link = link.replace("//", "https://");
+    }
+    DIV.firstChild.setAttribute("src", link);
+    DIV.setAttribute("class", "videoPlayerContainer");
+} else {
+    DIV.innerHTML = "Błąd ładowania odtwarzacza! Jeśli uważasz że to problem z aplikacją, zgłoś to na Githubie.";
 }
-DIV.firstChild.setAttribute("src", link);
-DIV.setAttribute("class", "videoPlayerContainer");
 
 document.querySelector(".playerMain").appendChild(DIV);
+
 
 finishLoading();
