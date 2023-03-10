@@ -1,7 +1,21 @@
 import handleWindowMovement from "./lib/handleWindowMovement.js";
 import finishLoading from "./lib/finishLoading.js";
+import handleFavoriteButton from "./lib/handleFavoriteButton.js";
 
-handleWindowMovement()
+handleWindowMovement();
+
+/**
+ * This eventListener avoids the error of returning to the anime search screen without entering its name.
+ */
+document.querySelector("#backButton").addEventListener("click", async e => {
+    if(localStorage.getItem('FROM') == 'SEARCH') { 
+        window.location.href='./searchResults.html';
+    } else if(localStorage.getItem('FROM') == 'FAVORITE') { 
+        window.location.href='./favorite.html';
+    }
+});
+
+await handleFavoriteButton(document.querySelector("#favButton"));
 
 const ANIME_OBJECT = JSON.parse(sessionStorage.getItem("ANIME_OBJECT"));
 const ANIME_OL = document.querySelector("#episodeOl");

@@ -9,6 +9,7 @@ const ANIME_NAME = sessionStorage.getItem("ANIME_NAME");
 
 const ANIME_ARRAY = await window.shindenAPI.searchAnime(ANIME_NAME);
 
+localStorage.setItem("FROM", "SEARCH");
 
 
 ANIME_ARRAY.forEach(async (ANIME) => {
