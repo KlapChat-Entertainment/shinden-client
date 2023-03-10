@@ -1,12 +1,14 @@
 module.exports = {
   packagerConfig: {
-    icon: './src/img/icon.ico'
+    icon: 'src/img/icon.ico'
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        iconUrl: 'https://raw.githubusercontent.com/Tsugumik/shinden-client-electron/main/src/img/icon.ico'
+      },
     },
     {
       name: '@electron-forge/maker-zip',
