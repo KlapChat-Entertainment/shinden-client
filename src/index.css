@@ -108,11 +108,27 @@ button {
   background: none;
 }
 
+#favButton {
+  color: #ECB365;
+  cursor: pointer;
+}
+
 .searchResultsMain {
   overflow-y: auto;
   font-family: var(--text-font-family);
   color: white;
-  padding: 1rem;
+  padding: 0rem 1rem 1rem 1rem;
+}
+.searchResultsMain nav {
+  padding-top: 0.5rem;
+  font-size: 1.5rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.searchResultsMain nav a {
+  text-decoration: none;
 }
 .searchResultsMain h2 {
   padding: 1rem 0;

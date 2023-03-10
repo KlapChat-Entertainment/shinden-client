@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shinden Client <span id="version">3.0</span></title>
+    <title>Shinden Client 3.0</title>
     <link rel="stylesheet" href="../index.css">
-    <script type="module" src="../js/anime.js"></script>
+    <script type="module" src="../js/favorite.js"></script>
 </head>
 <body>
     <div class="mainContainer">
@@ -44,26 +44,21 @@
                 <div id="close">&#10006;</div>
             </div>
         </div>
-        <main class="animeMain">
+        <main class="searchResultsMain">
             <nav>
-                <a id="backButton" href="#">- Powrót -</a>
-                <span id="favButton">- Dodaj do ulubionych -</span>
+                <a onclick="history.back();" href="#">- Powrót -</a>
             </nav>
-            <div class="topSection">
-                <div class="imageContainer">
-                    <img src="" alt="">
-                </div>
-                <div class="episodesList">
-                    <h1 class="title">Tytuł</h1>
-                    <hr>
-                    <ol id="episodeOl">
-                        <li>Trwa ładowanie odcinków, proszę czekać</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="botSection">
-                <p>Trwa ładowanie opisu, proszę czekać</p>
-            </div>
+            <h2>Lista ulubionych:</h1>
+            <h2 class="noResults" style="display: none;">Brak wyników !</h1>
+            <table id="animeTable">
+                <tr>
+                    <th>Okładka</th>
+                    <th>Nazwa</th>
+                    <th>Typ</th>
+                    <th>Epizody</th>
+                    <th>Ocena</th>
+                </tr>
+            </table>
         </main>
     </div>
 </body>

@@ -2,8 +2,18 @@
     overflow-y: auto;
     font-family: var(--text-font-family);
     color: white;
-    padding: 1rem;
-
+    padding: 0rem 1rem 1rem 1rem;
+    nav {
+        padding-top: 0.5rem;
+        font-size: 1.5rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        a {
+            text-decoration: none;
+        }
+    }
     h2 {
         padding: 1rem 0;
         font-weight: 400;
