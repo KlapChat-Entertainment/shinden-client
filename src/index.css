@@ -341,6 +341,7 @@ button {
   transition: all 2s ease;
   overflow: hidden;
   background: black;
+  font-size: 1.5rem;
 }
 .playerMain nav {
   padding: 0.5rem 0 0 0;
