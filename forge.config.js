@@ -1,4 +1,16 @@
 module.exports = {
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'Tsugumik',
+          name: 'shinden-client-electron'
+        },
+        prerelease: true
+      },
+    },
+  ],
   packagerConfig: {
     icon: 'src/img/icon.ico'
   },
