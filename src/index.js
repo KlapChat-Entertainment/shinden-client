@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, autoUpdater } = require('electron');
+const isDev = require("electron-is-dev");
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const path = require('path');
 const { ElectronBlocker } = require('@cliqz/adblocker-electron');
@@ -8,6 +9,11 @@ const ShindenAPI = require('./api/scrappers/Shinden');
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+const server = 'https://update.electronjs.org';
+const feed = `${server}/Tsugumik/shinden-client-electron/${process.platform}-${process.arch}/${app.getVersion()}`;
+
+autoUpdater.setFeedURL(feed);
 
 const createWindow = () => {
   // Create the browser window.
@@ -23,7 +29,7 @@ const createWindow = () => {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: true,
-      devTools: false,
+      devTools: true,
     },
   });
 
@@ -61,7 +67,12 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', ()=>{
+  createWindow();
+  if(!isDev) {
+    autoUpdater.checkForUpdates();
+  }
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
