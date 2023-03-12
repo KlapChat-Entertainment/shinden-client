@@ -6,6 +6,11 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld('electronAPI', {
     min: async () => ipcRenderer.send("min"),
     close: async () => ipcRenderer.send("close"),
+    getVersion: async () => await ipcRenderer.invoke("getVersion"),
+    openReleasePage: async () => await ipcRenderer.invoke("openReleasePage"),
+    checkUpdates: async () => ipcRenderer.send("checkUpdates"),
+    onUpdateStatusChange: callback => ipcRenderer.on("updateStatusChange", callback),
+    onFinishLoading: callback => ipcRenderer.on("finishLoading", callback)
 });
 
 contextBridge.exposeInMainWorld('shindenAPI', {
