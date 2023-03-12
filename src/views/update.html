@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shinden Client <span id="version">3.0</span></title>
     <link rel="stylesheet" href="../index.css">
-    <script type="module" src="../js/anime.js"></script>
+    <script type="module" src="../js/update.js"></script>
 </head>
 <body>
     <div class="mainContainer">
@@ -47,26 +47,11 @@
                 <div id="close">&#10006;</div>
             </div>
         </div>
-        <main class="animeMain">
+        <main class="updateMain">
             <nav>
-                <a id="backButton" href="#">- Powrót -</a>
-                <span id="favButton">- Dodaj do ulubionych -</span>
+                <a onclick="history.back();" href="#">- Powrót -</a>
             </nav>
-            <div class="topSection">
-                <div class="imageContainer">
-                    <img src="" alt="">
-                </div>
-                <div class="episodesList">
-                    <h1 class="title">Tytuł</h1>
-                    <hr>
-                    <ol id="episodeOl">
-                        <li>Trwa ładowanie odcinków, proszę czekać</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="botSection">
-                <p>Trwa ładowanie opisu, proszę czekać</p>
-            </div>
+            <!--TODO: Buttons to check for updates and information about the current version-->
         </main>
     </div>
 </body>
