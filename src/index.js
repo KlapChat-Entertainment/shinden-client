@@ -36,7 +36,7 @@ const createWindow = () => {
     },
   });
 
-  // and load the index.html of the app.
+  // and load the home.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'views/home.html'));
 
 
@@ -52,14 +52,11 @@ const createWindow = () => {
     blocker.enableBlockingInSession(mainWindow.webContents.session);
   });
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
-
-  ipcMain.on("min", async e => {
+  ipcMain.on("min", async _e => {
     mainWindow.minimize();
   });
   
-  ipcMain.on("close", async e => {
+  ipcMain.on("close", async _e => {
     app.quit();
   });
 
@@ -84,19 +81,19 @@ const createWindow = () => {
     
   });
   
-  autoUpdater.on("update-not-available", async()=> {
+  autoUpdater.on("update-not-available", async() => {
     checking = false;
     mainWindow.webContents.send("updateStatusChange", "Brak dostępnych aktualizacji.");
     mainWindow.webContents.send("finishLoading", true);
   });
   
-  autoUpdater.on("update-available", async()=> {
+  autoUpdater.on("update-available", async() => {
     checking = false;
     updating = true;
     mainWindow.webContents.send("updateStatusChange", "Aktualizacja jest dostępna, trwa pobieranie.");
   });
   
-  autoUpdater.on("update-downloaded", async()=> {
+  autoUpdater.on("update-downloaded", async() => {
     updating = false;
     updateDownloaded = true;
     mainWindow.webContents.send("updateStatusChange", "Aktualizacja została pobrana, zrestartuj aplikacje.");
@@ -110,7 +107,7 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', ()=>{
+app.on('ready', () => {
   createWindow();
   if(!isDev) {
     autoUpdater.checkForUpdates();
