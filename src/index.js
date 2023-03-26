@@ -159,6 +159,10 @@ ipcMain.handle("getPlayer", async(_event, data)=>{
   return DATA;
 });
 
+ipcMain.handle("login", async(_event, loginData)=>{
+  await ShindenAPI.login(loginData);
+});
+
 ipcMain.handle("getVersion", async()=>{
   return app.getVersion();
 });

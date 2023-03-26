@@ -9,21 +9,48 @@ const shindenUrl = "https://shinden.pl";
 
 
 module.exports = {
+    jwtCookie: "",
+    sess_shinden: "",
+    async cookieFetch(URL, REQ_HEADERS) {
+        const HEADERS = new Headers(REQ_HEADERS);
+        
+        let cookieString = "";
+
+        if(this.jwtCookie) {
+            cookieString += `jwtCookie=${this.jwtCookie};`;
+        }
+
+        if(this.sess_shinden) {
+            cookieString += `sess_shinden=${this.sess_shinden}`;
+        }
+
+        HEADERS.append("Cookie", cookieString);
+
+        const REQUEST = await fetch(URL, {
+            method: "GET",
+            headers: HEADERS
+        });
+
+        const HTML = await REQUEST.text();
+
+        REQUEST.headers.raw()["set-cookie"].forEach(scstring=>{
+            let newSetCookie = scstring.split(";")[0];
+            if(newSetCookie.split("=")[0]=="jwtCookie") {
+                this.jwtCookie = newSetCookie.split("=")[1]
+            } else if(newSetCookie.split("=")[0]=="sess_shinden") {
+                this.sess_shinden = newSetCookie.split("=")[1];
+            }
+        });
+
+        return HTML;
+    },
     async searchAnime(name) {
+
         let animeName = name.replace(/\s/g, "+");
     
         const URL = `${shindenUrl}/series?search=${animeName}`
-    
-        const HEADERS = new Headers(AnimeSitesHeaders.Shinden.FRONTEND);
-    
-        
-        const DATA = await fetch(URL, {
-            method: "GET",
-            credentials: "same-origin",
-            headers: HEADERS
-        });
-    
-        const HTML = await DATA.text();
+
+        const HTML = await this.cookieFetch(URL, AnimeSitesHeaders.Shinden.FRONTEND);
     
         const $ = cheerio.load(HTML);
     
@@ -67,16 +94,7 @@ module.exports = {
     async getDescription(linkToSeries) {
         const URL = linkToSeries;
     
-        const HEADERS = new Headers(AnimeSitesHeaders.Shinden.FRONTEND);
-    
-        
-        const DATA = await fetch(URL, {
-            method: "GET",
-            credentials: "same-origin",
-            headers: HEADERS
-        });
-    
-        const HTML = await DATA.text();
+        const HTML = await this.cookieFetch(URL, AnimeSitesHeaders.Shinden.FRONTEND);
     
         const $ = cheerio.load(HTML);
     
@@ -92,16 +110,7 @@ module.exports = {
     async getEpisodes(linkToSeries) {
         const URL = linkToSeries + "/all-episodes";
     
-        const HEADERS = new Headers(AnimeSitesHeaders.Shinden.FRONTEND);
-    
-        
-        const DATA = await fetch(URL, {
-            method: "GET",
-            credentials: "same-origin",
-            headers: HEADERS
-        });
-    
-        const HTML = await DATA.text();
+        const HTML = await this.cookieFetch(URL, AnimeSitesHeaders.Shinden.FRONTEND);
     
         const $ = cheerio.load(HTML);
     
@@ -113,8 +122,10 @@ module.exports = {
             EPISODES.push(new Episode($(data).text(), ""));
         });
     
-        datarow.find("a").each(async (i, data)=>{
-            EPISODES[i].link = shindenUrl + $(data).attr("href");
+        datarow.find("a.button.active").each(async (i, data)=>{
+            if(EPISODES[i]) {
+                EPISODES[i].link = shindenUrl + $(data).attr("href");
+            }
         });
     
         EPISODES.reverse()
@@ -164,22 +175,11 @@ module.exports = {
             return PLAYERS;
         }
     
-        const HEADERS = new Headers(AnimeSitesHeaders.Shinden.FRONTEND);
-    
-        
-        const DATA = await fetch(URL, {
-            method: "GET",
-            credentials: "same-origin",
-            headers: HEADERS
-        });
-    
-        const HTML = await DATA.text();
+        const HTML = await this.cookieFetch(URL, AnimeSitesHeaders.Shinden.FRONTEND);
     
         const $ = cheerio.load(HTML);
     
         const datarow = $("tbody");
-    
-        
     
         datarow.find(".ep-buttons").each(async(i, data)=>{
             $(data).find("a").each(async(a_i, a_data)=>{
@@ -190,5 +190,60 @@ module.exports = {
         });
     
         return PLAYERS;
-    }
+    },
+    async login(loginData) {
+        /* {password: "example", email: "example@example.com"} */
+        const FORMDATA = new URLSearchParams();
+        FORMDATA.append("password", loginData.password);
+        FORMDATA.append("remember", "on");
+        FORMDATA.append("username", loginData.email);
+
+        const url = "https://shinden.pl/main/login";
+
+        const HEADERS = new Headers(AnimeSitesHeaders.Shinden.LOGIN);
+
+        const REQUEST1 = await fetch(url, {
+            method: "POST",
+            headers: HEADERS,
+            body: FORMDATA.toString(),
+            redirect: "manual",
+            follow: 0
+        });
+
+        const SET_COOKIE = REQUEST1.headers.get("set-cookie");
+
+        const REDIRECT_URL = REQUEST1.headers.get("Location");
+
+        HEADERS.append("Cookie", SET_COOKIE);
+
+        HEADERS.append("Referer", url);
+
+        const REQUEST2 = await fetch(REDIRECT_URL, {
+            method: "POST",
+            headers: HEADERS,
+            body: FORMDATA.toString(),
+            redirect: "manual",
+            follow: 0
+        });
+
+        let cookiesToReturn = [];
+        cookiesToReturn.push("cb-rodo=accepted;");
+        cookiesToReturn = [...cookiesToReturn, ...REQUEST2.headers.raw()["set-cookie"]];
+
+        cookiesToReturn = cookiesToReturn.filter(sc=>{
+            return sc.split("=")[0]=="sess_shinden" || sc.split("=")[0]=="jwtCookie";
+        });
+
+
+        REQUEST2.headers.raw()["set-cookie"].forEach(scstring=>{
+            let newSetCookie = scstring.split(";")[0];
+            if(newSetCookie.split("=")[0]=="jwtCookie") {
+                this.jwtCookie = newSetCookie.split("=")[1]
+            } else if(newSetCookie.split("=")[0]=="sess_shinden") {
+                this.sess_shinden = newSetCookie.split("=")[1];
+            }
+        });
+
+    },
+    
 }

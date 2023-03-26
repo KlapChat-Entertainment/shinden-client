@@ -19,4 +19,5 @@ contextBridge.exposeInMainWorld('shindenAPI', {
     getEpisodes: async linkToSeries => await ipcRenderer.invoke("getEpisodes", linkToSeries),
     getPlayers: async episodeLink => await ipcRenderer.invoke("getPlayers", episodeLink),
     getPlayer: async onlineId => await ipcRenderer.invoke("getPlayer", onlineId),
+    login: async loginData => await ipcRenderer.invoke("login", loginData),
 });
