@@ -1,6 +1,9 @@
+import handleAutoLogin from "./lib/handleAutoLogin.js";
 import handleWindowMovement from "./lib/handleWindowMovement.js";
 
 handleWindowMovement();
+
+await handleAutoLogin();
 
 document.querySelector("form").addEventListener("submit", async e => {
     e.preventDefault();

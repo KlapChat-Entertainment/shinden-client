@@ -427,6 +427,56 @@ button {
   background-color: rgba(0, 0, 0, 0);
 }
 
+.loginMain {
+  font-family: var(--text-font-family);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 2rem;
+}
+.loginMain h2 {
+  font-weight: 400;
+  font-size: 2.5rem;
+  padding: 1rem;
+}
+.loginMain p {
+  font-size: 2rem;
+  text-align: center;
+}
+.loginMain form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+.loginMain form input {
+  font-size: 1.5rem;
+  width: 300px;
+  padding: 0.5rem;
+}
+.loginMain button {
+  background: gray;
+  border: black 2px solid;
+  cursor: pointer;
+  width: -moz-fit-content;
+  width: fit-content;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  color: black;
+}
+.loginMain button:hover {
+  border-color: white;
+}
+.loginMain .loginInfo {
+  font-size: 2rem;
+}
+.loginMain .loginInfo h2 {
+  text-align: center;
+}
+
 :root {
   --logo-font-family: "Island Moments", cursive;
   --logo-color: white;

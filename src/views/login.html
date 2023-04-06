@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shinden Client <span id="version">3.0</span></title>
     <link rel="stylesheet" href="../index.css">
-    <script type="module" src="../js/anime.js"></script>
+    <script type="module" src="../js/login.js"></script>
 </head>
 <body>
     <div class="mainContainer">
@@ -50,25 +50,18 @@
                 <div id="close">&#10006;</div>
             </div>
         </div>
-        <main class="animeMain">
-            <nav>
-                <a id="backButton" href="#">- Powrót -</a>
-                <span id="favButton">- Dodaj do ulubionych -</span>
-            </nav>
-            <div class="topSection">
-                <div class="imageContainer">
-                    <img src="" alt="">
-                </div>
-                <div class="episodesList">
-                    <h1 class="title">Tytuł</h1>
-                    <hr>
-                    <ol id="episodeOl">
-                        <li>Trwa ładowanie odcinków, proszę czekać</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="botSection">
-                <p>Trwa ładowanie opisu, proszę czekać</p>
+        <main class="loginMain">
+            <h2>Logowanie na shinden.pl</h2>
+            <p>Ta funkcja jest eksperymentalna i może nie działać poprawnie.</p>
+            <form>
+                <input required type="email" name="email" id="email" placeholder="Email">
+                <input required type="password" name="password" id="password" placeholder="Hasło">
+                <button type="submit">Zaloguj się</button>
+            </form>
+            <button type="button" id="clearCookies">Usuń dane logownia</button>
+            <div class="loginInfo">
+                <h2>Status logowania</h2>
+                <p id="loginStatus">Brak danych logowania w pamięci.</p>
             </div>
         </main>
     </div>
