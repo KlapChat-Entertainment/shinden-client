@@ -4,6 +4,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const path = require('path');
 const { ElectronBlocker } = require('@cliqz/adblocker-electron');
 const ShindenAPI = require('./api/scrappers/Shinden');
+const isWin = process.platform === "win32";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -64,6 +65,9 @@ const createWindow = () => {
     if(isDev) {
       mainWindow.webContents.send("updateStatusChange", "Aplikacja pracuje w trybie developerskim.");
       mainWindow.webContents.send("finishLoading", true);
+    } else if(!isWin) {
+      mainWindow.webContents.send("updateStatusChange", `Twoja platforma: ${process.platform} nie jest obsługiwana.`);
+      mainWindow.webContents.send("finishLoading", true);
     } else {
       if(checking) {
         mainWindow.webContents.send("updateStatusChange", "Sprawdzanie dostępności aktualizacji.");
@@ -109,7 +113,7 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow();
-  if(!isDev) {
+  if(!isDev && isWin) {
     autoUpdater.checkForUpdates();
   }
 });
