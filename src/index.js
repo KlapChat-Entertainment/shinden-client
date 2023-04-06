@@ -167,8 +167,21 @@ ipcMain.handle("login", async(_event, loginData)=>{
   await ShindenAPI.login(loginData);
 });
 
+ipcMain.handle("getCookies", async()=>{
+  const cookies = await ShindenAPI.getCookies();
+  return cookies;
+});
+
 ipcMain.handle("getVersion", async()=>{
   return app.getVersion();
+});
+
+ipcMain.handle("clearCookies", async(_event)=>{
+  await ShindenAPI.clearCookies();
+});
+
+ipcMain.handle("setCookies", async(_event, cookies)=>{
+  await ShindenAPI.setCookies(cookies);
 });
 
 ipcMain.handle("openReleasePage", async()=>{
