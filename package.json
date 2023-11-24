@@ -1,10 +1,10 @@
 {
-  "name": "shinden-client-electron",
-  "productName": "shinden-client-electron",
+  "name": "shinden-client",
+  "productName": "shinden-client",
   "version": "3.0.5",
   "description": "Unofficial client for the polish anime websites. It allows you to watch anime without being exposed to ads and pop-ups.",
   "main": "src/index.js",
-  "repository": "https://github.com/Tsugumik/shinden-client-electron/",
+  "repository": "https://github.com/Tsugumik/shinden-client",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",

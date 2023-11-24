@@ -12,7 +12,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 const server = 'https://update.electronjs.org';
-const feed = `${server}/Tsugumik/shinden-client-electron/${process.platform}-${process.arch}/${app.getVersion()}`;
+const feed = `${server}/Tsugumik/shinden-client/${process.platform}-${process.arch}/${app.getVersion()}`;
 let updating = false;
 let updateDownloaded = false;
 let checking = false;
@@ -185,6 +185,6 @@ ipcMain.handle("setCookies", async(_event, cookies)=>{
 });
 
 ipcMain.handle("openReleasePage", async()=>{
-  shell.openExternal(`https://github.com/Tsugumik/shinden-client-electron/releases/tag/v${app.getVersion()}`);
+  shell.openExternal(`https://github.com/Tsugumik/shinden-client/releases/tag/v${app.getVersion()}`);
 });
 

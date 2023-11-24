@@ -21,7 +21,7 @@ async function checkUpdates() {
     }  
 }
 
-RELEASE_LINK_TAG.innerHTML = `https://github.com/Tsugumik/shinden-client-electron/releases/tag/v${APP_VERSION}`;
+RELEASE_LINK_TAG.innerHTML = `https://github.com/Tsugumik/shinden-client/releases/tag/v${APP_VERSION}`;
 RELEASE_LINK_TAG.addEventListener("click", async event => {
     event.preventDefault();
     await window.electronAPI.openReleasePage();

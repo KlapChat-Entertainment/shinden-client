@@ -5,7 +5,7 @@ module.exports = {
       config: {
         repository: {
           owner: 'Tsugumik',
-          name: 'shinden-client-electron'
+          name: 'shinden-client'
         },
         prerelease: true
       },
@@ -19,7 +19,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        iconUrl: 'https://raw.githubusercontent.com/Tsugumik/shinden-client-electron/main/src/img/icon.ico'
+        iconUrl: 'https://raw.githubusercontent.com/Tsugumik/shinden-client/main/src/img/icon.ico'
       },
     },
     {
