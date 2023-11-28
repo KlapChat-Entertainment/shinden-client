@@ -4,7 +4,11 @@ export default {
     './src/**/*.{html,js,svelte,ts}'
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        islandMoments: ['Island Moments', 'sans-serif']
+      }
+    },
   },
   plugins: [],
 }
