@@ -221,19 +221,19 @@ mod headers {
 			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36",
 		};
 		const API = {
-			"Host": "api4.shinden.pl",
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0",
-			"Accept": "*/*",
-			"Accept-Language": "pl,en-US;q=0.7,en;q=0.3",
-			"Origin": "https://shinden.pl",
-			"Connection": "keep-alive",
+			"host": "api4.shinden.pl",
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0",
+			"accept": "*/*",
+			"accept-language": "pl,en-US;q=0.7,en;q=0.3",
+			"origin": "https://shinden.pl",
+			"connection": "keep-alive",
 		};
 		const LOGIN = {
-			"Content-Type": "application/x-www-form-urlencoded",
-			"Accept-Encoding": "gzip, deflate, br",
-			"Connection": "keep-alive",
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51",
-			"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+			"content-type": "application/x-www-form-urlencoded",
+			"accept-encoding": "gzip, deflate, br",
+			"connection": "keep-alive",
+			"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51",
+			"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
 		};
 	}
 }
