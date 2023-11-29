@@ -21,6 +21,8 @@
         <span class="text-red-700">&cross;</span>
     {:else if $loadingState == "success"}
         <span class="text-green-700">&check;</span>
+    {:else if $loadingState == "warning"}
+        <span>&#9888;</span>
     {:else}
         <span class="text-red-700">&cross;</span>
     {/if}
