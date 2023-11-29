@@ -1,11 +1,18 @@
 <script lang="ts">
     import { page } from "$app/stores";
+	import ResultsTable from "$lib/searchResult/resultsTable.svelte";
     import { loadingState } from "$lib/stores";
+    $loadingState = "loading";
+    
     let animeName = $page.url.searchParams.get('animeName');
+    
+    // TODO: anime search
 
-    loadingState.set("loading");
-    loadingState.set("failed");
+    $loadingState = "success";
+
 </script>
 
-<!-- TODO: Table with search results -->
-<h2>{animeName}</h2>
+<div class="mx-4">
+    <h2 class="text-white py-4">Wyniki wyszukiwania: {animeName}</h2>
+    <ResultsTable />
+</div>

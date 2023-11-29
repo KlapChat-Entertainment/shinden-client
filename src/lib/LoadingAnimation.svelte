@@ -1,5 +1,6 @@
 <script lang="ts">
     import { loadingState } from "./stores";
+    import { page } from "$app/stores";
 </script>
 
 <div class="w-9 h-9 flex items-center justify-center font-bold text-lg">
