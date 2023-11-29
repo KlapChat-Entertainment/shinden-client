@@ -1,14 +1,12 @@
 <script lang="ts">
 	import SubmitButton from "$lib/SubmitButton.svelte";
     import { loadingState } from "$lib/stores";
-	import { onMount } from "svelte";
-
    
     // Example use of loading state system
-    loadingState.set("loading");
+    $loadingState = "loading";
 
     setTimeout(()=>{
-        loadingState.set("success");
+        $loadingState = "success";
     }, 1000);
 </script>
 
