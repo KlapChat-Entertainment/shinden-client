@@ -9,6 +9,7 @@ pub struct Anime {
 	// Maybe use a decimal
 	pub rating: f32,
 	pub episode_count: u32,
+	pub online_id: u32,
 	pub description: Option<String>,
 	pub genres: Option<Vec<String>>,
 	pub episodes: Option<Vec<Box<Episode>>>,
@@ -16,15 +17,14 @@ pub struct Anime {
 
 impl std::hash::Hash for Anime {
 	fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-		self.name.hash(state);
+		self.online_id.hash(state);
 	}
 }
 
 impl std::cmp::PartialEq for Anime {
 	#[inline]
 	fn eq(&self, other: &Self) -> bool {
-		// Maybe use link_to_series instead?
-		self.name == other.name
+		self.online_id == other.online_id
 	}
 }
 

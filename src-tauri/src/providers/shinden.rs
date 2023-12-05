@@ -112,6 +112,21 @@ impl ShindenProvider {
 				Url::options().base_url(Some(&self.shinden_url)).parse(&link_to_series).map_err(|_| FetchError::Parse("URL error"))?
 			};
 
+			let online_id = {
+				let path = link_to_series.path();
+				let name = match path.rsplit_once('/') {
+					Some((_, name)) => name,
+					None => path,
+				};
+				match name.split_once('-') {
+					Some((id, _)) => id.parse().map_err(|_| FetchError::Parse("Invalid ID")),
+					None => {
+						println!("[WARN] ID did not have a dash");
+						name.parse().map_err(|_| FetchError::Parse("Invalid ID"))
+					}
+				}
+			}?;
+
 			let image_link = {
 				let cover_link = select_one!(row, ".cover-col > a");
 				let cover_attrs = cover_link.attributes.borrow();
@@ -133,6 +148,7 @@ impl ShindenProvider {
 				title_kind,
 				rating,
 				episode_count,
+				online_id,
 				description: None,
 				genres: None,
 				episodes: None,
