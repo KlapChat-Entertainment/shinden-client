@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { appState } from '$lib/stores';
+	import { AppState } from '$lib/types';
     import { appWindow } from '@tauri-apps/api/window';
     
-    type buttonActionType = "min" | "close" | "link" | "back";
+    type buttonActionType = "min" | "close" | "back";
 
     const SYMBOLS = {
         "min": "&#95;",
@@ -10,10 +12,6 @@
     }
     
     export let buttonType: buttonActionType;
-    
-    // Required only when buttonType is link.
-    export let href : string = "";
-    export let value: string = "";
 
     async function buttonAction() {
         if(buttonType == "min") {
@@ -21,23 +19,37 @@
         } else if(buttonType == "close") {
             await appWindow.close();
         } else if(buttonType == "back") {
-            window.history.back();
+            switch($appState) {
+                case AppState.HOME:
+                    break;
+                case AppState.SEARCH:
+                    $appState = AppState.HOME;
+                    break;
+                case AppState.ANIME:
+                    $appState = AppState.SEARCH;
+                    break;
+                case AppState.PLAYERS:
+                    $appState = AppState.ANIME;
+                    break;
+                case AppState.WATCHING:
+                    $appState = AppState.PLAYERS;
+                    break;
+                default:
+                    $appState = AppState.HOME;
+                    break;
+            }
         }
     }
 </script>
 
 
 
-{#if buttonType != "link"}
-    <button 
-        type="button" 
-        class="text-white w-12 h-full text-center text-xl transition-colors hover:bg-gray-700" 
-        on:click={buttonAction}>
-        {@html SYMBOLS[buttonType] }
-    </button>
-{:else if buttonType == "link"}
-    <a href={href} class="text-white flex items-center w-fit h-full px-4 text-sm transition-colors hover:bg-gray-700">
-        {value}
-    </a>
-{/if}
+
+<button 
+    type="button" 
+    class="text-white w-12 h-full text-center text-xl transition-colors hover:bg-gray-700" 
+    on:click={buttonAction}>
+    {@html SYMBOLS[buttonType] }
+</button>
+
 

@@ -2,16 +2,17 @@
 
 There are three loading states
 
-- loading
-- success
-- failed
-- warning
+- LOADING
+- SUCCESS
+- FAILED
+- WARNING
 
-Each script in the +page.svelte file and functions should start with a 
+Each script in the .svelte file should start with a
 
 ```ts
-import { loadingState } from "$lib/stores";
-$loadingState = "loading";
+import { loadingState } from "./stores";
+import { LoadingState } from "./types";
+$loadingState = LoadingState.LOADING;
 ```
 
 And then after loading the necessary information, it should set the state depending on the result.
@@ -19,9 +20,9 @@ And then after loading the necessary information, it should set the state depend
 For example
 
 ```ts
-$loadingState = "loading";
+$loadingState = LoadingState.LOADING;
 
 setTimeout(()=>{
-    $loadingState = "success";
+    $loadingState = LoadingState.SUCCESS;
 }, 1000);
 ```

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import NavButton from "./NavButton.svelte";
     import LoadingAnimation from "$lib/LoadingAnimation.svelte";
+	import NavGotoButton from "./NavGotoButton.svelte";
+	import { AppState } from "$lib/types";
 </script>
 
 <header data-tauri-drag-region class="flex justify-between items-center w-full h-9 bg-gray-900 select-none cursor-move">
@@ -9,7 +11,7 @@
         <LoadingAnimation />
     </div>
     <nav data-tauri-drag-region class="flex h-full flex-1 justify-end items-center">
-        <NavButton buttonType="link" href="/" value="Wyszukiwarka" />
+        <NavGotoButton where={AppState.HOME} value="Wyszukiwarka"/>
         <NavButton buttonType="back" />
         <NavButton buttonType="min" />
         <NavButton buttonType="close" />      

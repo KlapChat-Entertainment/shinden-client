@@ -1,19 +1,33 @@
 <script lang="ts">
-	import SubmitButton from "$lib/SubmitButton.svelte";
-    import { loadingState } from "$lib/stores";
-   
-    // Example use of loading state system
-    $loadingState = "loading";
-
-    setTimeout(()=>{
-        $loadingState = "success";
-    }, 1000);
+    import '$lib/app.css';
+	import { appState } from '$lib/stores';
+    import NavBar from '$lib/navigation/NavBar.svelte';
+	import Home from '$lib/pages/Home.svelte';
+	import Search from '$lib/pages/Search.svelte';
+	import { AppState } from '$lib/types';
+	import Anime from '$lib/pages/Anime.svelte';
+	import Players from '$lib/pages/Players.svelte';
+	import Watching from '$lib/pages/Watching.svelte';
 </script>
 
-<div class="h-full w-full bg-no-repeat flex justify-center items-center flex-col">
-    <img src="/images/elric.png" width="624px" alt="" class="drop-shadow-md">
-    <form action="/search" class="flex flex-col gap-4 items-center">
-        <input required placeholder="Wpisz nazwę anime" type="text" class="w-[600px] h-10 outline-none rounded-3xl px-5 py-1 shadow-md shadow-black" name="animeName">
-        <SubmitButton />
-    </form>
+<!--
+    Window height = 700px
+    Navbar height (h-9 = 36px)
+    Main app container fixed height 664px and width 100%
+-->
+
+<NavBar />
+
+<div class="h-[664px] w-full overflow-y-auto bg-gray-800">
+    {#if $appState == AppState.HOME}
+        <Home />
+    {:else if $appState == AppState.SEARCH}
+        <Search />
+    {:else if $appState == AppState.ANIME}
+        <Anime />
+    {:else if $appState == AppState.PLAYERS}
+        <Players />
+    {:else if $appState == AppState.WATCHING}
+        <Watching />
+    {/if}
 </div>
