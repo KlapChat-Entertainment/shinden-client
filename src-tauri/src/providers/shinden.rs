@@ -1,11 +1,9 @@
-use crate::model::*;
-//use hyper::{Uri, client::conn::http2::Builder as ConnBuilder};
-use cookie::{CookieBuilder, Cookie, CookieJar, Display};
+use crate::model::{*, provider::*};
+use super::utils::NodeRefExt;
+use cookie::Cookie;
 use reqwest::{Client as HttpClient, Url};
 use tokio::sync::RwLock;
 use std::sync::Arc;
-
-type Cb<T, E> = Box<dyn FnOnce(Result<T, E>) + Send + 'static>;
 
 const SHINDEN_HOST: &str = "https://shinden.pl";
 
@@ -82,53 +80,62 @@ impl ShindenProvider {
 		response.text().await
 	}
 
-	fn parse_anime_from_html(html: String) -> Result<AnimeSearchResult, AnimeSearchError> {
-		println!("[DEBUG] Search result:\n{html}");
-		#[inline]
-		fn parse_err<T>(_: T) -> FetchError { FetchError::Parse }
-		let tree = tauri::utils::html::parse(html);
+	fn parse_anime_from_html(&self, html: String) -> Result<AnimeSearchResult, AnimeSearchError> {
+		if false {
+			let html = Box::<str>::from(html.as_str());
+			tokio::spawn(async move {
+				let _ = tokio::fs::write("tmp-out.html", &html[..]).await;
+			});
+		}
+
 		macro_rules! select_one {
 			($node:expr, $sel:expr) => {
-				$node.select($sel).map_err(parse_err)?
-					.next().ok_or(FetchError::Parse)?
+				$node.select_first($sel).map_err(|_| FetchError::Parse(concat!("select one: ", stringify!($sel))))?
 			};
 		}
 		macro_rules! select_multi {
 			($node:expr, $sel:expr) => {
-				$node.select($sel).map_err(parse_err)?
+				$node.select($sel).map_err(|_| FetchError::Parse(concat!("select multi: ", stringify!($sel))))?
 			};
 		}
-		let data_row = select_one!(tree, ".title-table");
+
+		let tree = tauri::utils::html::parse(html);
+		let data_row = select_one!(tree, ".title-table > article");
 		let mut anime = Vec::new();
-		for row in select_multi!(data_row.as_node(), ".div-row") {
-			let head = select_one!(row.as_node(), "h3");
-			let link = select_one!(head.as_node(), "a");
+
+		for row in data_row.as_node().children().filter(|child| child.has_class("div-row")) {
+			let link = select_one!(row, ".desc-col > h3 > a");
 			let name = link.text_contents();
-			let link_to_series = link.attributes.borrow().get("href").ok_or(FetchError::Parse)?.parse().map_err(parse_err)?;
+			let link_to_series = {
+				let link_attrs = link.attributes.borrow();
+				let link_to_series = link_attrs.get("href").ok_or(FetchError::Parse("no href"))?;
+				Url::options().base_url(Some(&self.shinden_url)).parse(&link_to_series).map_err(|_| FetchError::Parse("URL error"))?
+			};
 
 			let image_link = {
-				let cover_link = select_one!(select_one!(row.as_node(), ".cover-col").as_node(), "a");
+				let cover_link = select_one!(row, ".cover-col > a");
 				let cover_attrs = cover_link.attributes.borrow();
-				let cover = cover_attrs.get("href").ok_or(FetchError::Parse)?;
+				let cover = cover_attrs.get("href").ok_or(FetchError::Parse("no href"))?;
 				if cover.starts_with("javascript:") {
 					println!("[WARN] Cover image contains JavaScript");
 				}
-				cover.parse().map_err(parse_err)?
+				Url::options().base_url(Some(&self.shinden_url)).parse(cover).map_err(|_| FetchError::Parse("URL error 2 Electric Bogaloo"))?
 			};
 
-			let series_type = select_one!(row.as_node(), ".title-kind-col").text_contents();
-			let episode_count: u32 = select_one!(row.as_node(), ".episodes-col").text_contents().trim().parse().map_err(parse_err)?;
-			let rating: f32 = select_one!(row.as_node(), ".rate-top").text_contents().parse().map_err(parse_err)?;
+			let title_kind = select_one!(row, ".title-kind-col").text_contents();
+			let episode_count: u32 = select_one!(row, ".episodes-col").text_contents().trim().parse().map_err(|_| FetchError::Parse("Ep count error"))?;
+			let rating: f32 = select_one!(row, ".rate-top").text_contents().replace(',', ".").parse().map_err(|_| FetchError::Parse("Rating error"))?;
 
 			anime.push(Anime {
 				name,
 				link_to_series,
 				image_link,
-				genre: series_type,
+				title_kind,
 				rating,
 				episode_count,
-				episodes: None,
 				description: None,
+				genres: None,
+				episodes: None,
 			});
 		}
 		Ok(anime)
@@ -143,7 +150,7 @@ impl Provider for ShindenProvider {
 			let response = self.fetch_url(url).await;
 			match response {
 				Ok(html) => {
-					let res = Self::parse_anime_from_html(html);
+					let res = self.parse_anime_from_html(html);
 					match res {
 						Ok(list) => cb(Ok(list)),
 						Err(err) => cb(Err(err)),

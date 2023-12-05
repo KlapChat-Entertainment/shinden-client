@@ -2,7 +2,7 @@ use super::{Anime, Episode, Player, PlayerEmbed};
 pub use reqwest::Error as NetworkError;
 use std::sync::Arc;
 
-type Cb<T, E> = Box<dyn FnOnce(Result<T, E>) + Send + 'static>;
+pub type Cb<T, E> = Box<dyn FnOnce(Result<T, E>) + Send + 'static>;
 
 pub trait Provider {
 	// Show API
@@ -16,9 +16,28 @@ pub trait Provider {
 	// TODO
 }
 
+#[derive(Debug)]
 pub enum FetchError {
 	Network(NetworkError),
-	Parse,
+	Parse(&'static str),
+}
+
+impl std::fmt::Display for FetchError {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			Self::Network(network) => network.fmt(f),
+			Self::Parse(str) => write!(f, "failed to parse response: {str}"),
+		}
+	}
+}
+
+impl std::error::Error for FetchError {
+	fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+		match self {
+			Self::Network(error) => Some(error),
+			Self::Parse{..} => None,
+		}
+	}
 }
 
 pub type AnimeSearchResult = Vec<Anime>;

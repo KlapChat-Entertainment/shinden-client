@@ -1,10 +1,10 @@
-mod provider;
+pub mod provider;
 mod anime;
 mod episode;
 mod player;
 mod player_embed;
 
-pub use provider::*;
+pub use provider::Provider;
 pub use anime::*;
 pub use episode::*;
 pub use player::*;
