@@ -67,6 +67,7 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "cookie",
+ "hashbrown 0.14.3",
  "hyper",
  "reqwest",
  "serde",
