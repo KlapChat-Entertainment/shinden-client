@@ -46,9 +46,17 @@
 
 <button 
     type="button" 
-    class="text-white w-12 h-full text-center text-xl transition-colors hover:{(buttonType == "close") ? 'bg-red-700' : 'bg-gray-700'}" 
+    class="text-white w-12 h-full text-center text-xl transition-colors {buttonType == "close" ? 'closeButton' : 'otherButton'}" 
     on:click={buttonAction}>
     {@html SYMBOLS[buttonType] }
 </button>
 
+<style class="postcss">
+    .closeButton:hover {
+        @apply bg-red-700;
+    }
 
+    .otherButton:hover {
+        @apply bg-gray-700;
+    }
+</style>
