@@ -44,12 +44,9 @@
     }
 </script>
 
-
-
-
 <button 
     type="button" 
-    class="text-white w-12 h-full text-center text-xl transition-colors hover:bg-gray-700" 
+    class="text-white w-12 h-full text-center text-xl transition-colors hover:{(buttonType == "close") ? 'bg-red-700' : 'bg-gray-700'}" 
     on:click={buttonAction}>
     {@html SYMBOLS[buttonType] }
 </button>
