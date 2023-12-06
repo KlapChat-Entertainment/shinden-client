@@ -12,7 +12,7 @@
 
 <button type="button" class="flex bg-gray-700 p-3 rounded-xl shadow-sm shadow-black items-stretch" on:click={handleClick}>
     <div class="flex items-center">
-        <img src={anime.image_link} alt={anime.name} class="w-28 rounded-xl shadow-md shadow-black object-fill object-cover">
+        <img src={anime.image_link} alt={anime.name} class="w-28 rounded-xl shadow-md shadow-black">
     </div>
     <div class="flex flex-1 flex-col text-center">
         <h3 class="text-white text-center text-xl border-b mx-5 py-1">{anime.name}</h3>
