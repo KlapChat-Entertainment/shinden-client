@@ -19,7 +19,12 @@
             const anime = await invoke<Array<AnimeSearchResult>>('search_anime', { 'anime': $animeName });
 
             if(anime.length > 0) {
-                results = [...anime]
+                anime.sort((a, b)=>{
+                    return b.rating - a.rating;
+                });
+
+                results = [...anime];
+                
                 $loadingState = LoadingState.SUCCESS;
             } else {
                 $loadingState = LoadingState.WARNING;
