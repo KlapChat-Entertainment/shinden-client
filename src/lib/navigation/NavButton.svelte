@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { appState } from '$lib/stores';
+	import { goto } from '$app/navigation';
 	import { AppState } from '$lib/types';
     import { appWindow } from '@tauri-apps/api/window';
+    import { page } from '$app/stores';
     
     type buttonActionType = "min" | "close" | "back";
 
@@ -19,23 +20,24 @@
         } else if(buttonType == "close") {
             await appWindow.close();
         } else if(buttonType == "back") {
-            switch($appState) {
+            switch($page.url.pathname) {
                 case AppState.HOME:
                     break;
                 case AppState.SEARCH:
-                    $appState = AppState.HOME;
+                    await goto(AppState.HOME);
                     break;
                 case AppState.ANIME:
-                    $appState = AppState.SEARCH;
+                    await goto(AppState.SEARCH);
                     break;
                 case AppState.PLAYERS:
-                    $appState = AppState.ANIME;
+                await goto(AppState.HOME);
+                    await goto(AppState.ANIME);
                     break;
                 case AppState.WATCHING:
-                    $appState = AppState.PLAYERS;
+                    await goto(AppState.PLAYERS);
                     break;
                 default:
-                    $appState = AppState.HOME;
+                    await goto(AppState.HOME);
                     break;
             }
         }

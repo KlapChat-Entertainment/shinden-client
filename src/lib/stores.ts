@@ -1,7 +1,6 @@
 import { writable } from "svelte/store";
-import { AppState, LoadingState } from "./types";
-
+import { LoadingState } from "./types";
 
 export const loadingState = writable<LoadingState>(LoadingState.SUCCESS);
-export const appState = writable<AppState>(AppState.HOME);
 export const animeName = writable<string>("");
+export const selectedAnimeId = writable<number>(0);
