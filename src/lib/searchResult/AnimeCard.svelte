@@ -2,6 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { selectedAnimeId } from "$lib/stores";
 	import { AppState, type AnimeSearchResult } from "$lib/types";
+	import { blur, crossfade, draw, fly, scale } from "svelte/transition";
     export let anime: AnimeSearchResult;
 
     async function handleClick() {
@@ -10,7 +11,7 @@
     }
 </script>
 
-<button type="button" class="flex bg-gray-700 p-3 rounded-xl shadow-sm shadow-black items-stretch" on:click={handleClick}>
+<button type="button" class="flex bg-gray-700 p-3 rounded-xl shadow-sm shadow-black items-stretch" on:click={handleClick} transition:scale>
     <div class="flex items-center">
         <img src={anime.image_link} alt={anime.name} class="w-28 rounded-xl shadow-md shadow-black">
     </div>
