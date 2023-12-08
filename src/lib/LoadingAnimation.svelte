@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { page } from "$app/stores";
     import { loadingState } from "./stores";
-	import { LoadingState } from "./types";
+	import { AppState, LoadingState } from "./types";
 
     let startTime: number, endTime: number, operationTime: number;
 
@@ -44,7 +45,7 @@
     {:else}
         <span class="text-red-700">&cross;</span>
     {/if}
-    {#if operationEnded}
+    {#if operationEnded && $page.url.pathname != AppState.HOME}
         <div class="text-white text-sm font-normal">{operationTime.toFixed()}ms</div>
     {/if}
 </div>
