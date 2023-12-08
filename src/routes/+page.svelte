@@ -3,6 +3,7 @@
 	import SubmitButton from "$lib/SubmitButton.svelte";
     import { loadingState, animeName } from "$lib/stores";
 	import { AppState, LoadingState } from "$lib/types";
+	import { scale } from "svelte/transition";
 
     // Example use of loading state system
     $loadingState = LoadingState.LOADING;
@@ -14,7 +15,7 @@
     $loadingState = LoadingState.SUCCESS;
 </script>
 
-<div class="h-full w-full bg-no-repeat flex justify-center items-center flex-col">
+<div class="h-full w-full bg-no-repeat flex justify-center items-center flex-col" transition:scale>
     <img src="/images/elric.png" width="624px" alt="" class="drop-shadow-md">
     <form action="/search" class="flex flex-col gap-4 items-center" on:submit|preventDefault={submit}>
         <input required placeholder="Wpisz nazwę anime" type="text" class="w-[600px] h-10 outline-none rounded-3xl px-5 py-1 shadow-md shadow-black" name="animeName" bind:value={$animeName}>
