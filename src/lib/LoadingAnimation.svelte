@@ -1,9 +1,26 @@
 <script lang="ts">
     import { loadingState } from "./stores";
 	import { LoadingState } from "./types";
+
+    let startTime: number, endTime: number, operationTime: number;
+
+    let operationEnded: boolean = false;
+
+    $: if($loadingState == LoadingState.LOADING) {
+        startTime = performance.now();
+        operationEnded = false;
+    } else {
+        if(operationEnded == false) {
+            endTime = performance.now();
+            operationTime = endTime - startTime;
+            operationEnded = true;
+        } else {
+            operationEnded = false;
+        }
+    }
 </script>
 
-<div class="w-9 h-9 flex items-center justify-center font-bold text-lg">
+<div class="w-9 h-9 flex gap-2 items-center font-bold text-lg">
     {#if $loadingState == LoadingState.LOADING}
         <svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
         viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
@@ -26,5 +43,8 @@
         <span>&#9888;</span>
     {:else}
         <span class="text-red-700">&cross;</span>
+    {/if}
+    {#if operationEnded}
+        <div class="text-white text-sm font-normal">{operationTime.toFixed()}ms</div>
     {/if}
 </div>
