@@ -1,5 +1,5 @@
 # About Shinden Client 4
-![Tauri logo](https://tauri.app/img/index/header_light.svg)
+![Tauri logo](https://tauri.app/img/index/header_dark.svg)
 - The project is currently being rewritten in Tauri (Rust + SvelteKit) under the name Shinden Client 4.
 - Shinden Client 3 created in Electron will lose support as of the release of version 4.
 - We are writing the new version in a way that allows the project to be easily extended with new anime sites. Replacing Electron with Tauri brings many benefits including a faster backend.
