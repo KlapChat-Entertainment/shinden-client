@@ -10,7 +10,7 @@
         await goto(AppState.ANIME);
     }
 
-    function ratingString(anime) {
+    function ratingString(anime: AnimeSearchResult) {
         return anime.rating == null ? 'Brak' : `${anime.rating.toFixed(2)} / 10`;
     }
 </script>

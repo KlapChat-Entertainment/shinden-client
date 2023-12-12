@@ -1,12 +1,25 @@
 <script lang="ts">
+	import { invoke } from '@tauri-apps/api/tauri';
 	import AnimeFullCard from "$lib/anime/AnimeFullCard.svelte";
 	import { loadingState, selectedAnimeId } from "$lib/stores";
-	import { LoadingState } from "$lib/types";
+	import { LoadingState, type AnimeDetails } from "$lib/types";
+	import { onMount } from 'svelte';
 	$loadingState = LoadingState.LOADING;
 
-	// Loading episodes, description, cover image etc from specific $selectedAnimeId
+	onMount(async () => {
+		try {
+			// Loading episodes, description, cover image etc from specific $selectedAnimeId
+			const anime: AnimeDetails = await invoke('get_anime_details', { 'onlineId': $selectedAnimeId });
 
-	$loadingState = LoadingState.SUCCESS;
+			console.log('Yay!', anime);
+
+			$loadingState = LoadingState.SUCCESS;
+		} catch(err) {
+			console.error('Oh noes!', err);
+			$loadingState = LoadingState.FAILED;
+		}
+	});
+
 </script>
 
 <!-- TODO: Anime view -->

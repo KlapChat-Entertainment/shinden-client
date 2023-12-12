@@ -14,11 +14,23 @@ export enum AppState {
 };
 
 export type AnimeSearchResult = {
-    episode_count: number,
-    image_link: string,
-    kind: string,
-    link_to_series: string,
     name: string,
+    link_to_series: string,
+    image_link: string,
+    description: string | null,
+    kind: string,
+    rating: number | null,
+    episode_count: number,
     online_id: number,
-    rating: number
-}
+};
+
+export type AnimeDetails = AnimeSearchResult & {
+    description: string,
+    episode_list: Array<EpisodeInfo>,
+};
+
+export type EpisodeInfo = {
+    name: string,
+    index: number,
+    link: string,
+};
