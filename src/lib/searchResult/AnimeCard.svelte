@@ -1,17 +1,14 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import ratingString from "$lib/ratingString";
 	import { selectedAnimeId } from "$lib/stores";
 	import { AppState, type AnimeSearchResult } from "$lib/types";
-	import { blur, crossfade, draw, fly, scale } from "svelte/transition";
+	import { scale } from "svelte/transition";
     export let anime: AnimeSearchResult;
 
     async function handleClick() {
         $selectedAnimeId = anime.online_id;
         await goto(AppState.ANIME);
-    }
-
-    function ratingString(anime: AnimeSearchResult) {
-        return anime.rating == null ? 'Brak' : `${anime.rating.toFixed(2)} / 10`;
     }
 </script>
 
