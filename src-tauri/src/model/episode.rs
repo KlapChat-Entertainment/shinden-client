@@ -1,8 +1,10 @@
-use hyper::Uri;
+use std::sync::{Arc, OnceLock};
+use reqwest::Url;
 use super::Player;
 
 pub struct Episode {
 	pub name: String,
-	pub link: Uri,
-	pub players: Option<Vec<Box<Player>>>,
+	pub index: u32,
+	pub link: Url,
+	pub players: OnceLock<Vec<Arc<Player>>>,
 }

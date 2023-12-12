@@ -1,4 +1,4 @@
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 use reqwest::Url;
 use super::Episode;
 
@@ -13,7 +13,7 @@ pub struct Anime {
 	pub online_id: u32,
 	pub description: OnceLock<String>,
 	pub genres: OnceLock<Vec<String>>,
-	pub episodes: OnceLock<Vec<Box<Episode>>>,
+	pub episodes: OnceLock<Vec<Arc<Episode>>>,
 }
 
 impl std::hash::Hash for Anime {

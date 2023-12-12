@@ -14,7 +14,7 @@ Search result page:
 						"Title"
 				<ul .tags>
 					<li>
-						<a data-tag-id="a{id}" href="/genre/{id}-{name">
+						<a data-tag-id="a{id}" href="/genre/{id}-{name}">
 							"Tag"
 			<li .title-kind-col>
 				"Kind"
@@ -63,4 +63,26 @@ Search result page:
 					<li>
 						"[..] Description line... [..]"
 		...next entry
+```
+
+Episodes page:
+
+```html
+<section .episode-list>
+	<>
+		<table .data-view-table-episodes>
+			<tbody .list-episode-checkboxes>
+				<tr data-episode-no="{ep}">
+					<td>
+						"{ep}"
+					<td .ep-title>
+						"Tytuł"
+					<td>
+					<td>
+						<span .flag-icon .flag-icon-{lang} title="{lang-name}">
+					<td ep-date>
+						"Data"
+					<td .button-group>
+						<a href="{link}">
+				...next entry
 ```

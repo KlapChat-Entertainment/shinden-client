@@ -102,7 +102,7 @@ impl ShindenProvider {
 			let link_to_series = {
 				let link_attrs = link.attributes.borrow();
 				let link_to_series = link_attrs.get("href").ok_or(FetchError::Parse("no href"))?;
-				Url::options().base_url(Some(&self.shinden_url)).parse(&link_to_series).map_err(|_| FetchError::Parse("URL error"))?
+				Url::options().base_url(Some(&self.shinden_url)).parse(&link_to_series).map_err(|_| FetchError::Parse("Failed to parse series URL"))?
 			};
 
 			let online_id = {
@@ -127,7 +127,7 @@ impl ShindenProvider {
 				if cover.starts_with("javascript:") {
 					println!("[WARN] Cover image contains JavaScript");
 				}
-				Url::options().base_url(Some(&self.shinden_url)).parse(cover).map_err(|_| FetchError::Parse("URL error 2 Electric Bogaloo"))?
+				Url::options().base_url(Some(&self.shinden_url)).parse(cover).map_err(|_| FetchError::Parse("Failed to parse image URL"))?
 			};
 
 			let title_kind = select_one!(row, ".title-kind-col").text_contents();
@@ -168,6 +168,52 @@ impl ShindenProvider {
 		let pdesc = desc.as_node().select_first("p").map_err(|_| FetchError::Parse("Couldn't find paragraph in description"))?;
 		let description = pdesc.text_contents();
 		Ok(description)
+	}
+
+	fn parse_episodes_from_html(&self, html: String) -> Result<Vec<Arc<Episode>>, FetchError> {
+		macro_rules! select_one {
+			($node:expr, $sel:expr) => {
+				$node.select_first($sel).map_err(|_| FetchError::Parse(concat!("select one: ", stringify!($sel))))?
+			};
+		}
+
+		let tree = tauri::utils::html::parse(html);
+		let episode_table = tree.select_first(".list-episode-checkboxes").map_err(|_| FetchError::Parse("Couldn't find episode table"))?;
+		let mut episodes = Vec::new();
+
+		for table_row in episode_table.as_node().children().filter_map(|node| node.into_element_ref()) {
+			let episode_idx: u32 = {
+				let attrs = table_row.attributes.borrow();
+				match attrs.get("data-episode-no") {
+					Some(attr) => attr.parse().map_err(|_| FetchError::Parse("Couldn't parse episode ID"))?,
+					None => return Err(FetchError::Parse("Episode ID not present")),
+				}
+			};
+			let title = select_one!(table_row.as_node(), ".ep-title").text_contents();
+			let link = match select_one!(table_row.as_node(), ".button-group").as_node().children().filter_map(|ch| ch.into_element_ref()).next() {
+				Some(a) => {
+					let attrs = a.attributes.borrow();
+					let link = match attrs.get("href") {
+						Some(link) => link,
+						None => return Err(FetchError::Parse("Missing href attribute on episode link")),
+					};
+					Url::options().base_url(Some(&self.shinden_url))
+						.parse(link).map_err(|_| FetchError::Parse("Failed to parse URL"))?
+				}
+				None => return Err(FetchError::Parse("Episode link not found")),
+			};
+			episodes.push(Arc::new(Episode {
+				name: title,
+				index: episode_idx,
+				link,
+				players: OnceLock::new(),
+			}));
+		}
+		// Assumes the episodes will be provided in reverse order.
+		// The reverse should make the sort a bit faster in this case.
+		episodes.reverse();
+		episodes.sort_by_key(|ep| ep.index);
+		Ok(episodes)
 	}
 }
 
@@ -214,8 +260,30 @@ impl Provider for ShindenProvider {
 		});
 	}
 
-	fn load_episode_list(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), NetworkError>) {
-		todo!()
+	fn load_episode_list(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), FetchError>) {
+		if anime.episodes.get().is_some() {
+			cb(Ok(()));
+			return;
+		}
+
+		tokio::spawn(async move {
+			let mut url = anime.link_to_series.clone();
+			url.path_segments_mut().unwrap().push("all-episodes");
+			let response = self.fetch_url(url).await;
+			match response {
+				Ok(html) => {
+					let res = self.parse_episodes_from_html(html);
+					match res {
+						Ok(episodes) => {
+							let _ = anime.episodes.set(episodes);
+							cb(Ok(()));
+						}
+						Err(err) => cb(Err(err)),
+					}
+				}
+				Err(err) => cb(Err(FetchError::Network(err))),
+			}
+		});
 	}
 
 	fn load_players(self: Arc<Self>, episode: Arc<Episode>, cb: Cb<(), NetworkError>) {

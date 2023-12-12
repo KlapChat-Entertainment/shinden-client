@@ -8,7 +8,7 @@ pub trait Provider {
 	// Content API
 	fn search_anime(self: Arc<Self>, name: &str, cb: Cb<AnimeSearchResult, AnimeSearchError>);
 	fn load_description(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), FetchError>);
-	fn load_episode_list(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), NetworkError>);
+	fn load_episode_list(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), FetchError>);
 	fn load_players(self: Arc<Self>, episode: Arc<Episode>, cb: Cb<(), NetworkError>);
 	fn get_player_embed(self: Arc<Self>, player: &Player, cb: Cb<PlayerEmbed, NetworkError>);
 

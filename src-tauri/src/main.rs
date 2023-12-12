@@ -12,6 +12,7 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
       //api::create_api_backend,
       api::search_anime,
+      api::get_anime_details,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
