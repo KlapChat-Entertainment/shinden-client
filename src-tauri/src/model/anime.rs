@@ -7,7 +7,7 @@ pub struct Anime {
 	pub image_link: Url,
 	pub title_kind: String,
 	// Maybe use a decimal
-	pub rating: f32,
+	pub rating: Option<f32>,
 	pub episode_count: u32,
 	pub online_id: u32,
 	pub description: Option<String>,

@@ -139,7 +139,19 @@ impl ShindenProvider {
 
 			let title_kind = select_one!(row, ".title-kind-col").text_contents();
 			let episode_count: u32 = select_one!(row, ".episodes-col").text_contents().trim().parse().map_err(|_| FetchError::Parse("Ep count error"))?;
-			let rating: f32 = select_one!(row, ".rate-top").text_contents().replace(',', ".").parse().map_err(|_| FetchError::Parse("Rating error"))?;
+			let rating_raw = select_one!(row, ".rate-top").text_contents();
+			let rating: Option<f32> = if rating_raw == "Brak" {
+				None
+			} else {
+				match rating_raw.replace(',', ".").parse() {
+					Ok(rating) => Some(rating),
+					Err(_) => {
+						//FetchError::Parse("Rating error")
+						println!("[WARN] Couldn't parse rating: {}", rating_raw);
+						None
+					}
+				}
+			};
 
 			anime.push(Anime {
 				name,
