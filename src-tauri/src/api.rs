@@ -91,38 +91,48 @@ impl From<Arc<Anime>> for APIAnime {
 	}
 }
 
-enum FutureState<T> {
-	New,
-	Pending(std::task::Waker),
+enum FutureState<T, State = ()> {
+	NewState(State),
+	Pending(std::task::Waker, State),
 	Finsihed(T),
 	Taken,
 }
 
-struct StateWaiter<T> {
-	state: Arc<Mutex<FutureState<T>>>,
+impl<T> FutureState<T> {
+	#[allow(non_upper_case_globals)]
+	pub const New: Self = Self::NewState(());
 }
 
-impl<T> StateWaiter<T> {
+struct StateWaiter<T, State = ()> {
+	state: Arc<Mutex<FutureState<T, State>>>,
+}
+
+impl<T, State> StateWaiter<T, State> {
 	#[inline]
-	const fn new(state: Arc<Mutex<FutureState<T>>>) -> Self {
+	const fn new(state: Arc<Mutex<FutureState<T, State>>>) -> Self {
 		Self { state }
 	}
 
-	fn resolved(state: Arc<Mutex<FutureState<T>>>, value: T) -> Self {
-		*state.lock().unwrap() = FutureState::Finsihed(value);
+	fn resolved(value: T) -> Self {
+		let state = Arc::new(Mutex::new(FutureState::Finsihed(value)));
 		Self { state }
 	}
 }
 
-impl<T> Future for StateWaiter<T> {
+impl<T, State> Future for StateWaiter<T, State> {
 	type Output = T;
 	fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
 		match *self.state.lock().unwrap() {
-			ref mut state @ FutureState::New => {
-				*state = FutureState::Pending(cx.waker().clone());
+			ref state @ FutureState::NewState(ref value) => {
+				// SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY:
+				// This is safe, since the value is immediately rewritten.
+				let state: *const _ = state;
+				unsafe {
+					std::ptr::write(state.cast_mut(), FutureState::Pending(cx.waker().clone(), std::ptr::read(value)));
+				}
 				Poll::Pending
 			}
-			FutureState::Pending(ref mut waker) => {
+			FutureState::Pending(ref mut waker, _) => {
 				*waker = cx.waker().clone();
 				Poll::Pending
 			}
@@ -171,13 +181,14 @@ impl APIError {
 #[tauri::command(async)]
 pub fn search_anime<'a>(api: State<'a, Arc<ApiState>>, anime: &str) -> impl Future<Output = Result<Vec<APIAnime>, APIError>> + Send + Sync {
 	let api = Arc::clone(&api);
-	let state = Arc::new(Mutex::new(FutureState::New));
+	let state;
 	{
-		let state = state.clone();
 		let provider = match api.get_provider() {
 			Ok(prov) => prov,
-			Err(()) => return StateWaiter::resolved(state, Err(APIError::NoProvider)),
+			Err(()) => return StateWaiter::resolved(Err(APIError::NoProvider)),
 		};
+		state = Arc::new(Mutex::new(FutureState::New));
+		let state = state.clone();
 		provider.search_anime(anime, Box::new(move |result| {
 			let mut state = state.lock().unwrap();
 			let result = match result {
@@ -193,7 +204,7 @@ pub fn search_anime<'a>(api: State<'a, Arc<ApiState>>, anime: &str) -> impl Futu
 				}
 				Err(err) => Err(err.into()),
 			};
-			if let FutureState::Pending(waker) = std::mem::replace(&mut *state, FutureState::Finsihed(result)) {
+			if let FutureState::Pending(waker, ..) = std::mem::replace(&mut *state, FutureState::Finsihed(result)) {
 				waker.wake();
 			}
 		}));
