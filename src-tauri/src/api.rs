@@ -12,7 +12,7 @@ use std::{
 };
 use tauri::State;
 
-type HashSet<K, H = RandomState> = hashbrown::HashSet<K, H>;
+type HashSet<K, H = RandomState> = hashbrown::HashMap<K, (), H>;
 
 pub struct ApiState {
 	provider: Option<Arc<dyn Provider + Send + Sync>>,
@@ -25,8 +25,25 @@ pub struct AnimeCache {
 
 impl AnimeCache {
 	pub fn lookup_or_insert(&mut self, anime: Anime) -> Arc<Anime> {
-		// GRrrrrrrrrr
-		self.anime.get_or_insert(Arc::new(anime)).clone()
+		self.anime.raw_entry_mut()
+			.from_key(&anime)
+			.or_insert_with(|| (Arc::new(anime), ()))
+			.0.clone()
+	}
+
+	pub fn get(&self, id: u32) -> Option<Arc<Anime>> {
+		let hash = self.hash_id(id);
+
+		self.anime.raw_entry()
+			.from_hash(hash, |anime| anime.online_id == id)
+			.map(|(anime, ())| anime.clone())
+	}
+
+	fn hash_id(&self, id: u32) -> u64 {
+		use std::hash::{Hash, Hasher, BuildHasher};
+		let mut hasher = self.anime.hasher().build_hasher();
+		id.hash(&mut hasher);
+		hasher.finish()
 	}
 }
 
