@@ -6,12 +6,14 @@
 	import { onMount } from 'svelte';
 	$loadingState = LoadingState.LOADING;
 
+	let loadedAnimeDetails: AnimeDetails | null;
+
 	onMount(async () => {
 		try {
 			// Loading episodes, description, cover image etc from specific $selectedAnimeId
 			const anime: AnimeDetails = await invoke('get_anime_details', { 'onlineId': $selectedAnimeId });
 
-			console.log('Yay!', anime);
+			loadedAnimeDetails = anime;
 
 			$loadingState = LoadingState.SUCCESS;
 		} catch(err) {
@@ -25,5 +27,7 @@
 <!-- TODO: Anime view -->
 
 <div class="h-full p-4">
-	<AnimeFullCard />
+	{#if loadedAnimeDetails}
+		<AnimeFullCard animeDetails={loadedAnimeDetails}/>
+	{/if}
 </div>
