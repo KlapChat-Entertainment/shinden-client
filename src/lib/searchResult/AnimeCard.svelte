@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import AnimeNameHeader3 from "$lib/AnimeNameHeader3.svelte";
 	import ratingString from "$lib/ratingString";
 	import { selectedAnimeId } from "$lib/stores";
 	import { AppState, type AnimeSearchResult } from "$lib/types";
@@ -17,7 +18,7 @@
         <img src={anime.image_link} alt={anime.name} class="w-28 rounded-xl shadow-md shadow-black">
     </div>
     <div class="flex flex-1 flex-col text-center">
-        <h3 class="text-white text-center text-xl border-b mx-5 py-1">{anime.name}</h3>
+        <AnimeNameHeader3 anime={anime} />
         <div class="grid grid-cols-3 text-white flex-1 items-center">
             <div class="text-xl font-bold">Ocena</div>
             <div class="text-xl font-bold">Odcinki</div>
