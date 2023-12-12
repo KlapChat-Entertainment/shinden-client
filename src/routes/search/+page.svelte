@@ -20,11 +20,13 @@
 
             if(anime.length > 0) {
                 anime.sort((a, b)=>{
-                    return b.rating - a.rating;
+                    return b.rating == null ? -1 :
+                        a.rating == null ? 1 :
+                        b.rating - a.rating;
                 });
 
-                results = [...anime];
-                
+                results = anime;
+
                 $loadingState = LoadingState.SUCCESS;
             } else {
                 $loadingState = LoadingState.WARNING;

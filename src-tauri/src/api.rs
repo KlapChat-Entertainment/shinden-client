@@ -54,7 +54,7 @@ pub struct APIAnime {
 	image_link: &'static str,
 	kind: &'static str,
 	// Maybe use a decimal
-	rating: f32,
+	rating: Option<f32>,
 	episode_count: u32,
 	online_id: u32,
 }

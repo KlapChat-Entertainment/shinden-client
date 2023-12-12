@@ -9,6 +9,10 @@
         $selectedAnimeId = anime.online_id;
         await goto(AppState.ANIME);
     }
+
+    function ratingString(anime) {
+        return anime.rating == null ? 'Brak' : `${anime.rating.toFixed(2)} / 10`;
+    }
 </script>
 
 <button type="button" class="flex bg-gray-700 p-3 rounded-xl shadow-sm shadow-black items-stretch" on:click={handleClick} transition:scale>
@@ -21,7 +25,7 @@
             <div class="text-xl font-bold">Ocena</div>
             <div class="text-xl font-bold">Odcinki</div>
             <div class="text-xl font-bold">Typ</div>
-            <div class="text-2xl">{anime.rating.toFixed(2)} / 10</div>
+            <div class="text-2xl">{ratingString(anime)}</div>
             <div class="text-2xl">{anime.episode_count}</div>
             <div class="text-2xl">{anime.kind}</div>
         </div>
