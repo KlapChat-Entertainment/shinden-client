@@ -3,7 +3,7 @@ use super::utils::NodeRefExt;
 use cookie::Cookie;
 use reqwest::{Client as HttpClient, Url};
 use tokio::sync::RwLock;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 const SHINDEN_HOST: &str = "https://shinden.pl";
 
@@ -81,13 +81,6 @@ impl ShindenProvider {
 	}
 
 	fn parse_anime_from_html(&self, html: String) -> Result<AnimeSearchResult, AnimeSearchError> {
-		if false {
-			let html = Box::<str>::from(html.as_str());
-			tokio::spawn(async move {
-				let _ = tokio::fs::write("tmp-out.html", &html[..]).await;
-			});
-		}
-
 		macro_rules! select_one {
 			($node:expr, $sel:expr) => {
 				$node.select_first($sel).map_err(|_| FetchError::Parse(concat!("select one: ", stringify!($sel))))?
@@ -161,12 +154,20 @@ impl ShindenProvider {
 				rating,
 				episode_count,
 				online_id,
-				description: None,
-				genres: None,
-				episodes: None,
+				description: OnceLock::new(),
+				genres: OnceLock::new(),
+				episodes: OnceLock::new(),
 			});
 		}
 		Ok(anime)
+	}
+
+	fn parse_description_from_html(&self, html: String) -> Result<String, FetchError> {
+		let tree = tauri::utils::html::parse(html);
+		let desc = tree.select_first("#description").map_err(|_| FetchError::Parse("Couldn't find description node"))?;
+		let pdesc = desc.as_node().select_first("p").map_err(|_| FetchError::Parse("Couldn't find paragraph in description"))?;
+		let description = pdesc.text_contents();
+		Ok(description)
 	}
 }
 
@@ -189,15 +190,35 @@ impl Provider for ShindenProvider {
 		});
 	}
 
-	fn load_description(self: Arc<Self>, anime: &mut Anime, cb: Cb<(), NetworkError>) {
+	fn load_description(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), FetchError>) {
+		if anime.description.get().is_some() {
+			cb(Ok(()));
+			return;
+		}
+
+		tokio::spawn(async move {
+			let response = self.fetch_url(anime.link_to_series.clone()).await;
+			match response {
+				Ok(html) => {
+					let res = self.parse_description_from_html(html);
+					match res {
+						Ok(description) => {
+							let _ = anime.description.set(description);
+							cb(Ok(()));
+						}
+						Err(err) => cb(Err(err)),
+					}
+				}
+				Err(err) => cb(Err(FetchError::Network(err))),
+			}
+		});
+	}
+
+	fn load_episode_list(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), NetworkError>) {
 		todo!()
 	}
 
-	fn load_episode_list(self: Arc<Self>, anime: &mut Anime, cb: Cb<(), NetworkError>) {
-		todo!()
-	}
-
-	fn load_players(self: Arc<Self>, episode: &mut Episode, cb: Cb<(), NetworkError>) {
+	fn load_players(self: Arc<Self>, episode: Arc<Episode>, cb: Cb<(), NetworkError>) {
 		todo!()
 	}
 
