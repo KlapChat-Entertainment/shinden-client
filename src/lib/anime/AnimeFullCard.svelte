@@ -16,7 +16,7 @@
 		<AnimeFullCardInfo animeDetails={animeDetails}/>
 	</div>
 	<div class="flex flex-1 flex-col">
-		<div class="bg-gray-600 shadow-sm shadow-black rounded-xl h-2/3">
+		<div class="bg-gray-600 shadow-sm shadow-black rounded-xl h-2/3 pb-3">
 			<div class="h-[10%]">
 				<AnimeNameHeader3 anime={animeDetails}/>
 			</div>
