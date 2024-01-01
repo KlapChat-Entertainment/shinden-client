@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        islandMoments: ['Island Moments', 'sans-serif']
+        logo: ['Island Moments', 'sans-serif']
       }
     },
   },
