@@ -30,7 +30,6 @@
                     await goto(AppState.SEARCH);
                     break;
                 case AppState.PLAYERS:
-                await goto(AppState.HOME);
                     await goto(AppState.ANIME);
                     break;
                 case AppState.WATCHING:
