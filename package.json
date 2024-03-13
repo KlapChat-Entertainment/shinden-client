@@ -24,6 +24,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "29.1.2",
+    "electron-fetch": "^1.9.1",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "sass": "^1.71.1",
@@ -39,7 +40,6 @@
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
-    "electron-squirrel-startup": "^1.0.0",
-    "node-fetch": "^3.3.2"
+    "electron-squirrel-startup": "^1.0.0"
   }
 }
