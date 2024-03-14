@@ -85,5 +85,9 @@ typings/
 # Webpack
 .webpack/
 
+# Vite
+.vite/
+
 # Electron-Forge
 out/
+.vscode/settings.json

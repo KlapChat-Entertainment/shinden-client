@@ -11,9 +11,10 @@
 @use "./styles/UpdateMain";
 @use "./styles/LoginMain";
 @import url('https://fonts.googleapis.com/css2?family=Island+Moments&family=Lato&family=Tilt+Warp&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap');
 
 :root {
-    --logo-font-family: 'Island Moments', cursive;
+    --logo-font-family: "Kode Mono", monospace;
     //--logo-font-family: 'Tilt Warp', cursive;
     --logo-color: white;
     --text-font-family: 'Lato', sans-serif;

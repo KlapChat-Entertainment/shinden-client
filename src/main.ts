@@ -1,9 +1,9 @@
-const { app, BrowserWindow, ipcMain, autoUpdater, shell } = require('electron');
-const isDev = require("electron-is-dev");
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const path = require('path');
-const { ElectronBlocker } = require('@cliqz/adblocker-electron');
-const ShindenAPI = require('./api/scrappers/Shinden');
+import { app, autoUpdater, BrowserWindow, FeedURLOptions, ipcMain, shell } from 'electron';
+import path from 'path';
+import Shinden from './api/scrappers/Shinden';
+import fetch from 'electron-fetch';
+import { ElectronBlocker } from '@cliqz/adblocker-electron';
+import isDev from 'electron-is-dev';
 const isWin = process.platform === "win32";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -12,7 +12,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 const server = 'https://update.electronjs.org';
-const feed = `${server}/Tsugumik/shinden-client/${process.platform}-${process.arch}/${app.getVersion()}`;
+const feed: any = `${server}/Tsugumik/shinden-client/${process.platform}-${process.arch}/${app.getVersion()}`;
 let updating = false;
 let updateDownloaded = false;
 let checking = false;
@@ -20,7 +20,6 @@ let checking = false;
 autoUpdater.setFeedURL(feed);
 
 const createWindow = () => {
-  // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 700,
@@ -31,17 +30,16 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      contextIsolation: true,
-      enableRemoteModule: true,
-      devTools: isDev ? true : false,
+      contextIsolation: true
     },
   });
 
-  // and load the home.html of the app.
-  mainWindow.loadFile(path.join(__dirname, 'views/home.html'));
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL + '/src/views/home.html');
+  } else {
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/src/views/home.html`));
+  }
 
-
-  // Prevent stinky ads from opening popup windows
   mainWindow.webContents.setWindowOpenHandler(()=>{
     return {action: 'deny'};
   });
@@ -61,7 +59,7 @@ const createWindow = () => {
     app.quit();
   });
 
-  ipcMain.on("checkUpdates", async ()=> {
+  ipcMain.on("checkUpdates", async()=>{
     if(isDev) {
       mainWindow.webContents.send("updateStatusChange", "Aplikacja pracuje w trybie developerskim.");
       mainWindow.webContents.send("finishLoading", true);
@@ -82,9 +80,8 @@ const createWindow = () => {
         checking = true;
       }
     }
-    
   });
-  
+
   autoUpdater.on("update-not-available", async() => {
     checking = false;
     mainWindow.webContents.send("updateStatusChange", "Brak dostępnych aktualizacji.");
@@ -103,24 +100,10 @@ const createWindow = () => {
     mainWindow.webContents.send("updateStatusChange", "Aktualizacja została pobrana, zrestartuj aplikacje.");
     mainWindow.webContents.send("finishLoading", false);
   });
-
 };
 
+app.on('ready', createWindow);
 
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-  createWindow();
-  if(!isDev && isWin) {
-    autoUpdater.checkForUpdates();
-  }
-});
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -135,41 +118,43 @@ app.on('activate', () => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-
 ipcMain.handle("searchAnime", async(_event, data)=>{
-  const DATA = await ShindenAPI.searchAnime(data);
+  const DATA = await Shinden.searchAnime(data);
   return DATA;
 });
 
 ipcMain.handle("getDescription", async(_event, data)=>{
-  const DATA = await ShindenAPI.getDescription(data);
+  const DATA = await Shinden.getDescription(data);
   return DATA;
 });
 
 ipcMain.handle("getEpisodes", async(_event, data)=>{
-  const DATA = await ShindenAPI.getEpisodes(data);
+  const DATA = await Shinden.getEpisodes(data);
   return DATA;
 });
 
 ipcMain.handle("getPlayers", async(_event, data)=>{
-  const DATA = await ShindenAPI.getPlayers(data);
+  const DATA = await Shinden.getPlayers(data);
   return DATA;
 });
 
 ipcMain.handle("getPlayer", async(_event, data)=>{
-  const DATA = await ShindenAPI.getPlayer(data);
+  const DATA = await Shinden.getPlayer(data);
   return DATA;
 });
 
 ipcMain.handle("login", async(_event, loginData)=>{
-  await ShindenAPI.login(loginData);
+  await Shinden.login(loginData);
 });
 
-ipcMain.handle("getCookies", async()=>{
-  const cookies = await ShindenAPI.getCookies();
-  return cookies;
+ipcMain.handle("getLoginStatus", async(_event)=>{
+  const STATUS = await Shinden.getLoginStatus();
+  return STATUS;
+});
+
+ipcMain.handle("getUserName", async(_event)=>{
+  const USERNAME = await Shinden.getUserName();
+  return USERNAME;
 });
 
 ipcMain.handle("getVersion", async()=>{
@@ -177,14 +162,9 @@ ipcMain.handle("getVersion", async()=>{
 });
 
 ipcMain.handle("clearCookies", async(_event)=>{
-  await ShindenAPI.clearCookies();
-});
-
-ipcMain.handle("setCookies", async(_event, cookies)=>{
-  await ShindenAPI.setCookies(cookies);
+  await Shinden.clearCookies();
 });
 
 ipcMain.handle("openReleasePage", async()=>{
   shell.openExternal(`https://github.com/Tsugumik/shinden-client/releases/tag/v${app.getVersion()}`);
 });
-

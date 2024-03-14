@@ -1,16 +1,39 @@
 {
-  "name": "shinden-client",
-  "productName": "shinden-client",
-  "version": "3.0.5",
+  "name": "shinden-client-electron",
+  "productName": "shinden-client-electron",
+  "version": "3.1.0",
   "description": "Unofficial client for the polish anime websites. It allows you to watch anime without being exposed to ads and pop-ups.",
-  "main": "src/index.js",
-  "repository": "https://github.com/Tsugumik/shinden-client",
+  "main": ".vite/build/main.js",
+  "repository": "https://github.com/KlapChat-Entertainment/shinden-client",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "eslint --ext .ts,.tsx ."
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.3.0",
+    "@electron-forge/maker-deb": "^7.3.0",
+    "@electron-forge/maker-rpm": "^7.3.0",
+    "@electron-forge/maker-squirrel": "^7.3.0",
+    "@electron-forge/maker-zip": "^7.3.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.3.0",
+    "@electron-forge/plugin-fuses": "^7.3.0",
+    "@electron-forge/plugin-vite": "^7.3.0",
+    "@electron/fuses": "^1.7.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "electron": "29.1.2",
+    "electron-fetch": "^1.9.1",
+    "electron-is-dev": "^3.0.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.29.1",
+    "form-data": "^4.0.0",
+    "sass": "^1.71.1",
+    "ts-node": "^10.9.2",
+    "typescript": "~4.5.4",
+    "vite": "^5.1.6"
   },
   "keywords": [],
   "author": {
@@ -18,19 +41,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@cliqz/adblocker-electron": "^1.26.2",
+    "@cliqz/adblocker-electron": "^1.26.16",
     "cheerio": "^1.0.0-rc.12",
-    "electron-is-dev": "^2.0.0",
-    "electron-squirrel-startup": "^1.0.0",
-    "node-fetch": "^3.3.0"
-  },
-  "devDependencies": {
-    "@electron-forge/cli": "^6.0.5",
-    "@electron-forge/maker-deb": "^6.0.5",
-    "@electron-forge/maker-rpm": "^6.0.5",
-    "@electron-forge/maker-squirrel": "^6.0.5",
-    "@electron-forge/maker-zip": "^6.0.5",
-    "@electron-forge/publisher-github": "^6.0.5",
-    "electron": "23.3.13"
+    "electron-squirrel-startup": "^1.0.0"
   }
 }

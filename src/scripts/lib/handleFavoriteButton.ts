@@ -1,9 +1,10 @@
-import checkLocalStorage from "./checkLocalStorage.js";
+import Anime from "../../api/Anime";
+import checkLocalStorage from "./checkLocalStorage";
 
-export default async function handleFavoriteButton(HTML_ELEMENT) {
+export default async function handleFavoriteButton(HTML_ELEMENT: HTMLElement) {
     const ANIME_OBJECT = JSON.parse(sessionStorage.getItem("ANIME_OBJECT"));
     let favoriteStatus = await checkLocalStorage(ANIME_OBJECT);
-    const FAVORITE_ARRAY = JSON.parse(localStorage.getItem("FAVORITE"));
+    const FAVORITE_ARRAY: Array<Anime> = JSON.parse(localStorage.getItem("FAVORITE"));
     
     if(favoriteStatus) {
         HTML_ELEMENT.innerHTML = "- Usuń z ulubionych -";

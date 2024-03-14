@@ -1,6 +1,8 @@
-export default async function checkLocalStorage(ANIME_OBJECT) {
+import Anime from "../../api/Anime";
+
+export default async function checkLocalStorage(ANIME_OBJECT: Anime) : Promise<boolean> {
     if(localStorage.getItem("FAVORITE")) {
-        const FAVORITE_ARRAY = JSON.parse(localStorage.getItem("FAVORITE"));
+        const FAVORITE_ARRAY : Array<Anime> = JSON.parse(localStorage.getItem("FAVORITE"));
         const FILTER_ARRAY = FAVORITE_ARRAY.filter(ANIME => {
             return ANIME.name == ANIME_OBJECT.name;
         });
