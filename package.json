@@ -1,9 +1,10 @@
 {
-  "name": "shinden-client-electron-ts",
-  "productName": "shinden-client-electron-ts",
+  "name": "shinden-client",
+  "productName": "shinden-client",
   "version": "3.1.0",
-  "description": "My Electron application description",
+  "description": "Unofficial client for the polish anime websites. It allows you to watch anime without being exposed to ads and pop-ups.",
   "main": ".vite/build/main.js",
+  "repository": "https://github.com/KlapChat-Entertainment/shinden-client",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -37,8 +38,7 @@
   },
   "keywords": [],
   "author": {
-    "name": "Błażej Drozd",
-    "email": "drozdbazej@gmail.com"
+    "name": "Błażej Drozd"
   },
   "license": "MIT",
   "dependencies": {
