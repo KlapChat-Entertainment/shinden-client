@@ -42,6 +42,7 @@
   "license": "MIT",
   "dependencies": {
     "@cliqz/adblocker-electron": "^1.26.16",
+    "@electron-forge/publisher-github": "^7.3.0",
     "cheerio": "^1.0.0-rc.12",
     "electron-squirrel-startup": "^1.0.0"
   }
