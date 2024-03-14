@@ -5,15 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shinden Client <span id="version">3.0</span></title>
-    <link rel="stylesheet" href="../index.css">
-    <script type="module" src="../js/login.js"></script>
+    <script type="module" src="../scripts/login.ts"></script>
 </head>
 <body>
     <div class="mainContainer">
         <div class="windowNavBar">
             <div class="logoLoading">
                 <h1 class="logo">
-                    Shinden Client 3
+                    Shinden Client 3.1
                 </h1>
                 <div class="loading">
                     <svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -52,13 +51,12 @@
         </div>
         <main class="loginMain">
             <h2>Logowanie na shinden.pl</h2>
-            <p>Ta funkcja jest eksperymentalna i może nie działać poprawnie.</p>
             <form>
                 <input required type="email" name="email" id="email" placeholder="Email">
                 <input required type="password" name="password" id="password" placeholder="Hasło">
                 <button type="submit">Zaloguj się</button>
             </form>
-            <button type="button" id="clearCookies">Usuń dane logownia</button>
+            <button type="button" id="clearCookies">Wyloguj się</button>
             <div class="loginInfo">
                 <h2>Status logowania</h2>
                 <p id="loginStatus">Brak danych logowania w pamięci.</p>

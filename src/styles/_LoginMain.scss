@@ -28,16 +28,19 @@
         }
     }
     button {
-        background: gray;
-        border: black 2px solid;
+        background: white;
+        border-radius: 1rem;
         cursor: pointer;
         width: fit-content;
         font-size: 1.5rem;
         padding: 0.5rem;
         color: black;
         &:hover {
-            border-color: white;
+            -webkit-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
+            -moz-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
+            box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
         }
+        
     }
     .loginInfo {
         font-size: 2rem;

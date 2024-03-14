@@ -21,6 +21,6 @@ contextBridge.exposeInMainWorld('shindenAPI', {
     getPlayer: async (onlineId: string) => await ipcRenderer.invoke("getPlayer", onlineId),
     login: async (loginData: string) => await ipcRenderer.invoke("login", loginData),
     clearCookies: async ()=> await ipcRenderer.invoke("clearCookies"),
-    getCookies: async ()=> await ipcRenderer.invoke("getCookies"),
-    setCookies: async (cookies: string) => await ipcRenderer.invoke("setCookies", cookies),
+    getLoginStatus: async ()=> await ipcRenderer.invoke("getLoginStatus"),
+    getUserName: async ()=> await ipcRenderer.invoke("getUserName")
 });

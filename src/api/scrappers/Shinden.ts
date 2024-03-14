@@ -1,32 +1,25 @@
 import * as cheerio from "cheerio"
-import fetch from 'electron-fetch'
+import { session } from "electron";
+import fetch, { Headers } from 'electron-fetch'
 import Anime from "../Anime";
 import AnimeHeaders from "../AnimeHeaders";
 import Episode from "../Episode";
 import Player from "../Player";
 import sleep from "../Sleep";
+import FormData from 'form-data'
 
 const shindenUrl = "https://shinden.pl";
 
 export default {
-    jwtCookie: "",
-    sess_shinden: "",
-    autologin: "",
     async cookieFetch(URL: string, REQ_HEADERS: HeadersInit) : Promise<string> {
         const HEADERS = new Headers(REQ_HEADERS);
-
-        let cookieString = "";
-
-        cookieString += this.jwtCookie ? `jwtCookie=${this.jwtCookie};` : "";
-        cookieString += this.sess_shinden ? `sess_shinden=${this.sess_shinden};` : "";
-
-        HEADERS.append("Cookie", cookieString);
 
         const REQUEST = await fetch(URL, {
             method: "GET",
             headers:  HEADERS,
             redirect: "manual",
             follow: 0,
+            session: session.defaultSession,
             useSessionCookies: true,
         });
 
@@ -172,6 +165,65 @@ export default {
         });
     
         return PLAYERS;
-    }
+    },
+    async login(loginData: {password: string, email: string}) {
+        const FORMDATA = new FormData();
+        FORMDATA.append("password", loginData.password);
+        FORMDATA.append("remember", "on");
+        FORMDATA.append("username", loginData.email);
 
+        const url = "https://shinden.pl/main/login";
+
+        const HEADERS = new Headers(AnimeHeaders.Shinden.FRONTEND);
+
+        const PRE_REQ = await fetch(url, {
+            method: 'GET',
+            headers: new Headers(AnimeHeaders.Shinden.FRONTEND),
+            session: session.defaultSession,
+            useSessionCookies: true
+        });
+
+        const REQUEST = await fetch(url, {
+            method: 'POST',
+            headers: HEADERS,
+            body: FORMDATA,
+            session: session.defaultSession,
+            useSessionCookies: true
+        });
+    },
+    async clearCookies() {
+        session.defaultSession.clearStorageData();
+    },
+    async getLoginStatus() : Promise<boolean> {
+        const cookies = await session.defaultSession.cookies.get({url: 'https://shinden.pl', name: 'autologin'});
+
+        if(cookies.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    async getUserName() : Promise<string | null> {
+        const LOGIN_STATUS: boolean = await this.getLoginStatus();
+
+        if(LOGIN_STATUS) {
+            const REQ = await fetch(`${shindenUrl}/user`, {
+                headers: new Headers(AnimeHeaders.Shinden.FRONTEND),
+                session: session.defaultSession,
+                useSessionCookies: true
+            });
+
+            if(REQ.ok) {
+                const HTML = await REQ.text();
+                const $ = cheerio.load(HTML);
+                let title = $('title').text();
+                let username = title.split('(użytkownik)')[0].replace(' ', '');
+                return username;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 }

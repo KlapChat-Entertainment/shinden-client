@@ -19,10 +19,10 @@ export interface IShindenAPI {
     getEpisodes: (linkToSeries: string) => Promise<Array<Episode>>,
     getPlayers: (episodeLink: string) => Promise<Array<Player>>,
     getPlayer: (onlineId: string) => Promise<string>,
-    login: () => Promise<void>,
+    login: ({password: string, email: string}) => Promise<void>,
     clearCookies: () => Promise<void>,
-    getCookies: () => Promise<string>,
-    setCookies: () => Promise<void>
+    getLoginStatus: () => Promise<boolean>,
+    getUserName: () => Promise<string | null>
 }
 
 declare global {

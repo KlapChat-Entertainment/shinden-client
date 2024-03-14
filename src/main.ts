@@ -157,26 +157,27 @@ ipcMain.handle("getPlayer", async(_event, data)=>{
   return DATA;
 });
 
-// ipcMain.handle("login", async(_event, loginData)=>{
-//   await Shinden.login(loginData);
-// });
+ipcMain.handle("login", async(_event, loginData)=>{
+  await Shinden.login(loginData);
+});
 
-// ipcMain.handle("getCookies", async()=>{
-//   const cookies = await Shinden.getCookies();
-//   return cookies;
-// });
+ipcMain.handle("getLoginStatus", async(_event)=>{
+  const STATUS = await Shinden.getLoginStatus();
+  return STATUS;
+});
+
+ipcMain.handle("getUserName", async(_event)=>{
+  const USERNAME = await Shinden.getUserName();
+  return USERNAME;
+});
 
 ipcMain.handle("getVersion", async()=>{
   return app.getVersion();
 });
 
-// ipcMain.handle("clearCookies", async(_event)=>{
-//   await Shinden.clearCookies();
-// });
-
-// ipcMain.handle("setCookies", async(_event, cookies)=>{
-//   await Shinden.setCookies(cookies);
-// });
+ipcMain.handle("clearCookies", async(_event)=>{
+  await Shinden.clearCookies();
+});
 
 ipcMain.handle("openReleasePage", async()=>{
   shell.openExternal(`https://github.com/Tsugumik/shinden-client/releases/tag/v${app.getVersion()}`);
