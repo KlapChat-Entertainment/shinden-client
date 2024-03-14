@@ -14,6 +14,18 @@ export default defineConfig((env) => {
     base: './',
     build: {
       outDir: `.vite/renderer/${name}`,
+      rollupOptions: {
+        input: {
+          home: './src/views/home.html',
+          anime: './src/views/anime.html',
+          favorite: './src/views/favorite.html',
+          login: './src/views/login.html',
+          player: './src/views/player.html',
+          players: './src/views/players.html',
+          searchResults: './src/views/searchResults.html',
+          update: './src/views/update.html'
+        }
+      }
     },
     plugins: [pluginExposeRenderer(name)],
     resolve: {
