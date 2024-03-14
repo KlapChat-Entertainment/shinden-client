@@ -1,13 +1,23 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, autoUpdater, BrowserWindow, FeedURLOptions, ipcMain, shell } from 'electron';
 import path from 'path';
 import Shinden from './api/scrappers/Shinden';
 import fetch from 'electron-fetch';
 import { ElectronBlocker } from '@cliqz/adblocker-electron';
+import isDev from 'electron-is-dev';
+const isWin = process.platform === "win32";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+const server = 'https://update.electronjs.org';
+const feed: any = `${server}/Tsugumik/shinden-client/${process.platform}-${process.arch}/${app.getVersion()}`;
+let updating = false;
+let updateDownloaded = false;
+let checking = false;
+
+autoUpdater.setFeedURL(feed);
 
 const createWindow = () => {
   // Create the browser window.
@@ -52,6 +62,48 @@ const createWindow = () => {
   
   ipcMain.on("close", async _e => {
     app.quit();
+  });
+
+  ipcMain.on("checkUpdates", async()=>{
+    if(isDev) {
+      mainWindow.webContents.send("updateStatusChange", "Aplikacja pracuje w trybie developerskim.");
+      mainWindow.webContents.send("finishLoading", true);
+    } else if(!isWin) {
+      mainWindow.webContents.send("updateStatusChange", `Twoja platforma: ${process.platform} nie jest obsługiwana.`);
+      mainWindow.webContents.send("finishLoading", true);
+    } else {
+      if(checking) {
+        mainWindow.webContents.send("updateStatusChange", "Sprawdzanie dostępności aktualizacji.");
+      } else if(updating) {
+        mainWindow.webContents.send("updateStatusChange", "Aktualizacja jest dostępna, trwa pobieranie.");
+      } else if (updateDownloaded) {
+        mainWindow.webContents.send("updateStatusChange", "Aktualizacja została pobrana, zrestartuj aplikacje.");
+        mainWindow.webContents.send("finishLoading", true);
+      } else {
+        autoUpdater.checkForUpdates();
+        mainWindow.webContents.send("updateStatusChange", "Sprawdzanie dostępności aktualizacji.");
+        checking = true;
+      }
+    }
+  });
+
+  autoUpdater.on("update-not-available", async() => {
+    checking = false;
+    mainWindow.webContents.send("updateStatusChange", "Brak dostępnych aktualizacji.");
+    mainWindow.webContents.send("finishLoading", true);
+  });
+  
+  autoUpdater.on("update-available", async() => {
+    checking = false;
+    updating = true;
+    mainWindow.webContents.send("updateStatusChange", "Aktualizacja jest dostępna, trwa pobieranie.");
+  });
+  
+  autoUpdater.on("update-downloaded", async() => {
+    updating = false;
+    updateDownloaded = true;
+    mainWindow.webContents.send("updateStatusChange", "Aktualizacja została pobrana, zrestartuj aplikacje.");
+    mainWindow.webContents.send("finishLoading", false);
   });
 };
 

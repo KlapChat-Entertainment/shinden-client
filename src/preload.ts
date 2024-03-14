@@ -1,11 +1,16 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     min: async() => ipcRenderer.send("min"),
-    close: async() => ipcRenderer.send("close")
+    close: async() => ipcRenderer.send("close"),
+    getVersion: async () => await ipcRenderer.invoke("getVersion"),
+    openReleasePage: async () => await ipcRenderer.invoke("openReleasePage"),
+    checkUpdates: async () => ipcRenderer.send("checkUpdates"),
+    onUpdateStatusChange: (callback: ElectronAPICallbackFunctionOnUpdateStatusChange) => ipcRenderer.on("updateStatusChange", callback),
+    onFinishLoading: (callback: ElectronAPICallbackFunctionOnFinishLoading) => ipcRenderer.on("finishLoading", callback)
 });
 
 contextBridge.exposeInMainWorld('shindenAPI', {
