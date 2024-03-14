@@ -1,4 +1,4 @@
-import Anime from "src/api/Anime";
+import Anime from "../../api/Anime";
 import checkLocalStorage from "./checkLocalStorage";
 
 export default async function handleFavoriteButton(HTML_ELEMENT: HTMLElement) {

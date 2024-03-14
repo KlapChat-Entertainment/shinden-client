@@ -1,4 +1,4 @@
-import Player from "src/api/Player";
+import Player from "../api/Player";
 import finishLoading from "./lib/finishLoading";
 import handleWindowMovement from "./lib/handleWindowMovement";
 import '../index.scss';
@@ -10,11 +10,11 @@ async function handle() {
     const TABLE: HTMLTableElement = document.querySelector("#animeTable");
 
     PLAYERS.forEach(async PLAYER => {
-        let row = TABLE.insertRow();
-        let serviceCell = row.insertCell(0);
-        let qualityCell = row.insertCell(1);
-        let audioLangCell = row.insertCell(2);
-        let subLangCell = row.insertCell(3);
+        const row = TABLE.insertRow();
+        const serviceCell = row.insertCell(0);
+        const qualityCell = row.insertCell(1);
+        const audioLangCell = row.insertCell(2);
+        const subLangCell = row.insertCell(3);
         
         const A = document.createElement("a");
         A.href = "./player.html";

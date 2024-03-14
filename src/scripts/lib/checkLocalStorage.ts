@@ -1,4 +1,4 @@
-import Anime from "src/api/Anime";
+import Anime from "../../api/Anime";
 
 export default async function checkLocalStorage(ANIME_OBJECT: Anime) : Promise<boolean> {
     if(localStorage.getItem("FAVORITE")) {

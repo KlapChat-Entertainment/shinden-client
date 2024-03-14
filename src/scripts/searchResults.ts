@@ -1,5 +1,5 @@
-import finishLoading from "./lib/finishLoading.js";
-import handleWindowMovement from "./lib/handleWindowMovement.js";
+import finishLoading from "./lib/finishLoading";
+import handleWindowMovement from "./lib/handleWindowMovement";
 import '../index.scss';
 
 handleWindowMovement();
@@ -11,12 +11,12 @@ const ANIME_NAME = sessionStorage.getItem("ANIME_NAME");
 window.shindenAPI.searchAnime(ANIME_NAME).then(async ANIME_ARRAY=>
     {
         ANIME_ARRAY.forEach(async (ANIME) => {
-            let row = TABLE.insertRow();
-            let imagecell = row.insertCell(0);
-            let namecell = row.insertCell(1);
-            let typecell = row.insertCell(2);
-            let episodescell = row.insertCell(3);
-            let ratingcell = row.insertCell(4);
+            const row = TABLE.insertRow();
+            const imagecell = row.insertCell(0);
+            const namecell = row.insertCell(1);
+            const typecell = row.insertCell(2);
+            const episodescell = row.insertCell(3);
+            const ratingcell = row.insertCell(4);
             imagecell.innerHTML = `<img src="${ANIME.imageLink}">`;
             namecell.innerHTML = `<a href="./anime.html">${ANIME.name}</a>`;
             namecell.addEventListener("click", async () => {

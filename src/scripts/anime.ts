@@ -2,7 +2,7 @@ import finishLoading from "./lib/finishLoading";
 import '../index.scss';
 import handleWindowMovement from "./lib/handleWindowMovement";
 import handleFavoriteButton from "./lib/handleFavoriteButton";
-import Anime from "src/api/Anime";
+import Anime from "../api/Anime";
 
 handleWindowMovement();
 

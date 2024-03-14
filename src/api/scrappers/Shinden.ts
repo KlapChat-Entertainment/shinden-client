@@ -28,7 +28,7 @@ export default {
         return HTML;
     },
     async searchAnime(name: string) : Promise<Array<Anime>> {
-        let animeName = name.replace(/\s/g, "+");
+        const animeName = name.replace(/\s/g, "+");
     
         const URL = `${shindenUrl}/series?search=${animeName}`
 
@@ -41,7 +41,7 @@ export default {
         const ANIME_ARRAY = new Array<Anime>(); 
 
         datarow.find(".div-row").each((i: number, data: cheerio.Element) => {   
-            let name: string, link_to_series: string, link_to_image: string, animetype: string, episodes: string, rating: string;
+            let name: string, link_to_series: string, link_to_image: string, episodes: string;
     
             $(data).find("h3").each((i: number, data: cheerio.Element) => {
                 name = $(data).find("a").text();
@@ -57,10 +57,10 @@ export default {
                 link_to_image = shindenUrl + $(data).find(".cover-col").find("a").attr("href");
             }
     
-            animetype = $(data).find(".title-kind-col").text();
+            const animetype = $(data).find(".title-kind-col").text();
             episodes = $(data).find(".episodes-col").text();
             episodes = episodes.replace(" ", "");
-            rating = $(data).find(".rate-top").text();
+            const rating = $(data).find(".rate-top").text();
     
             if(name != undefined) {
                 name = name.replace(/["]/g, "");
@@ -96,7 +96,7 @@ export default {
     
         const datarow = $("tbody");
     
-        const EPISODES = new Array();
+        const EPISODES: Array<Episode> = [];
     
         datarow.find(".ep-title").each((i: number, data: cheerio.Element)=>{
             EPISODES.push(new Episode($(data).text(), ""));
@@ -176,14 +176,14 @@ export default {
 
         const HEADERS = new Headers(AnimeHeaders.Shinden.FRONTEND);
 
-        const PRE_REQ = await fetch(url, {
+        await fetch(url, {
             method: 'GET',
             headers: new Headers(AnimeHeaders.Shinden.FRONTEND),
             session: session.defaultSession,
             useSessionCookies: true
         });
 
-        const REQUEST = await fetch(url, {
+        await fetch(url, {
             method: 'POST',
             headers: HEADERS,
             body: FORMDATA,
@@ -216,8 +216,8 @@ export default {
             if(REQ.ok) {
                 const HTML = await REQ.text();
                 const $ = cheerio.load(HTML);
-                let title = $('title').text();
-                let username = title.split('(użytkownik)')[0].replace(' ', '');
+                const title = $('title').text();
+                const username = title.split('(użytkownik)')[0].replace(' ', '');
                 return username;
             } else {
                 return null;

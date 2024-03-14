@@ -14,7 +14,7 @@ async function handle() {
     DIV.innerHTML = PLAYER_HTML;
 
     if(DIV.firstChild) {
-        let iframe: HTMLIFrameElement = DIV.firstChild as HTMLIFrameElement;
+        const iframe: HTMLIFrameElement = DIV.firstChild as HTMLIFrameElement;
         let link = iframe.getAttribute("src");
         if (link.charAt(0) == "/" && link.charAt(1) == "/") {
             link = link.replace("//", "https://");

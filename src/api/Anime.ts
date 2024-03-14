@@ -1,3 +1,5 @@
+import Episode from "./Episode";
+
 export default class Anime {
     name: string;
     linkToSeries: string;
@@ -6,7 +8,7 @@ export default class Anime {
     rating: string;
     episodesCount: string;
     description: string;
-    episodes: Array<any>;
+    episodes: Array<Episode>;
     constructor(_name: string, _linkToSeries: string, _imageLink: string, _animeType: string, _rating: string, _episodesCount: string, _description: string) {
         this.name = _name;
         this.linkToSeries = _linkToSeries;
@@ -15,6 +17,6 @@ export default class Anime {
         this.rating = _rating;
         this.episodesCount = _episodesCount;
         this.description = _description;
-        this.episodes = new Array();
+        this.episodes = [];
     }
 }
