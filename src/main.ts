@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
 import Shinden from './api/scrappers/Shinden';
+import fetch from 'electron-fetch';
+import { ElectronBlocker } from '@cliqz/adblocker-electron';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -32,6 +34,17 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  mainWindow.webContents.setWindowOpenHandler(()=>{
+    return {action: 'deny'};
+  });
+
+  ElectronBlocker.fromLists(fetch, [
+    "https://raw.githubusercontent.com/MajkiIT/polish-ads-filter/master/polish-adblock-filters/adblock.txt",
+    "https://easylist.to/easylist/easylist.txt"
+  ]).then((blocker) => {
+    blocker.enableBlockingInSession(mainWindow.webContents.session);
+  });
 
   ipcMain.on("min", async _e => {
     mainWindow.minimize();
