@@ -248,5 +248,54 @@ export default {
         } else {
             return null;
         }
+    },
+    handleIpcMain(ipcMain: Electron.IpcMain) {
+        ipcMain.handle("searchAnime", async(_event, data)=>{
+            const DATA = await this.searchAnime(data);
+            return DATA;
+          });
+          
+          ipcMain.handle("getDescription", async(_event, data)=>{
+            const DATA = await this.getDescription(data);
+            return DATA;
+          });
+          
+          ipcMain.handle("getEpisodes", async(_event, data)=>{
+            const DATA = await this.getEpisodes(data);
+            return DATA;
+          });
+          
+          ipcMain.handle("getPlayers", async(_event, data)=>{
+            const DATA = await this.getPlayers(data);
+            return DATA;
+          });
+          
+          ipcMain.handle("getPlayer", async(_event, data)=>{
+            const DATA = await this.getPlayer(data);
+            return DATA;
+          });
+          
+          ipcMain.handle("login", async(_event, loginData)=>{
+            await this.login(loginData);
+          });
+          
+          ipcMain.handle("getLoginStatus", async(_event)=>{
+            const STATUS = await this.getLoginStatus();
+            return STATUS;
+          });
+          
+          ipcMain.handle("getUserName", async(_event)=>{
+            const USERNAME = await this.getUserName();
+            return USERNAME;
+          });
+          
+          ipcMain.handle("clearCookies", async(_event)=>{
+            await this.clearCookies();
+          });
+          
+          ipcMain.handle("getUserProfileImage", async(_event)=>{
+            const IMG = await this.getUserProfileImage();
+            return IMG;
+          });
     }
 }

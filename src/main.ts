@@ -118,58 +118,12 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.handle("searchAnime", async(_event, data)=>{
-  const DATA = await Shinden.searchAnime(data);
-  return DATA;
-});
-
-ipcMain.handle("getDescription", async(_event, data)=>{
-  const DATA = await Shinden.getDescription(data);
-  return DATA;
-});
-
-ipcMain.handle("getEpisodes", async(_event, data)=>{
-  const DATA = await Shinden.getEpisodes(data);
-  return DATA;
-});
-
-ipcMain.handle("getPlayers", async(_event, data)=>{
-  const DATA = await Shinden.getPlayers(data);
-  return DATA;
-});
-
-ipcMain.handle("getPlayer", async(_event, data)=>{
-  const DATA = await Shinden.getPlayer(data);
-  return DATA;
-});
-
-ipcMain.handle("login", async(_event, loginData)=>{
-  await Shinden.login(loginData);
-});
-
-ipcMain.handle("getLoginStatus", async(_event)=>{
-  const STATUS = await Shinden.getLoginStatus();
-  return STATUS;
-});
-
-ipcMain.handle("getUserName", async(_event)=>{
-  const USERNAME = await Shinden.getUserName();
-  return USERNAME;
-});
-
 ipcMain.handle("getVersion", async()=>{
   return app.getVersion();
-});
-
-ipcMain.handle("clearCookies", async(_event)=>{
-  await Shinden.clearCookies();
-});
-
-ipcMain.handle("getUserProfileImage", async(_event)=>{
-  const IMG = await Shinden.getUserProfileImage();
-  return IMG;
 });
 
 ipcMain.handle("openReleasePage", async()=>{
   shell.openExternal(`https://github.com/Tsugumik/shinden-client/releases/tag/v${app.getVersion()}`);
 });
+
+Shinden.handleIpcMain(ipcMain);
