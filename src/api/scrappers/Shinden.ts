@@ -225,5 +225,28 @@ export default {
         } else {
             return null;
         }
+    },
+    async getUserProfileImage() : Promise<string | null> {
+        const LOGIN_STATUS: boolean = await this.getLoginStatus();
+
+        if(LOGIN_STATUS) {
+            const REQ = await fetch(`${shindenUrl}/user`, {
+                headers: new Headers(AnimeHeaders.Shinden.FRONTEND),
+                session: session.defaultSession,
+                useSessionCookies: true
+            });
+
+            if(REQ.ok) {
+                const HTML = await REQ.text();
+                const $ = cheerio.load(HTML);
+                const img = $('.info-aside-img').attr('src');
+                const src = shindenUrl + img;
+                return src;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }

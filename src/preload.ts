@@ -22,5 +22,6 @@ contextBridge.exposeInMainWorld('shindenAPI', {
     login: async (loginData: string) => await ipcRenderer.invoke("login", loginData),
     clearCookies: async ()=> await ipcRenderer.invoke("clearCookies"),
     getLoginStatus: async ()=> await ipcRenderer.invoke("getLoginStatus"),
-    getUserName: async ()=> await ipcRenderer.invoke("getUserName")
+    getUserName: async ()=> await ipcRenderer.invoke("getUserName"),
+    getUserProfileImage: async ()=> await ipcRenderer.invoke("getUserProfileImage")
 });

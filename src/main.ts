@@ -165,6 +165,11 @@ ipcMain.handle("clearCookies", async(_event)=>{
   await Shinden.clearCookies();
 });
 
+ipcMain.handle("getUserProfileImage", async(_event)=>{
+  const IMG = await Shinden.getUserProfileImage();
+  return IMG;
+});
+
 ipcMain.handle("openReleasePage", async()=>{
   shell.openExternal(`https://github.com/Tsugumik/shinden-client/releases/tag/v${app.getVersion()}`);
 });

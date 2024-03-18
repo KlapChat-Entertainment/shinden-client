@@ -22,7 +22,8 @@ export interface IShindenAPI {
     login: ({password: string, email: string}) => Promise<void>,
     clearCookies: () => Promise<void>,
     getLoginStatus: () => Promise<boolean>,
-    getUserName: () => Promise<string | null>
+    getUserName: () => Promise<string | null>,
+    getUserProfileImage() : Promise<string | null>
 }
 
 declare global {
