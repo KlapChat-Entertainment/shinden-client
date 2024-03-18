@@ -2,10 +2,34 @@
     font-family: var(--text-font-family);
     color: white;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    padding: 2rem;
     gap: 2rem;
+    .loginForm {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        background: #04293A;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 1);
+        border-radius: 2rem;
+    }
+    .profileInfo {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #04293A;
+        img {
+            border-radius: 50%;
+            border: 2px solid white;
+            background-color: gray;
+        }
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 1);
+        border-radius: 2rem;
+    }
     h2 {
         font-weight: 400;
         font-size: 2.5rem;
@@ -25,6 +49,12 @@
             font-size: 1.5rem;
             width: 300px;
             padding: 0.5rem;
+            &:disabled {
+                background: lightgray;
+                &:hover {
+                    cursor: not-allowed;
+                }
+            }
         }
     }
     button {
@@ -35,10 +65,18 @@
         font-size: 1.5rem;
         padding: 0.5rem;
         color: black;
-        &:hover {
-            -webkit-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
-            -moz-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
-            box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
+        &:not(:disabled) {
+            &:hover {
+                -webkit-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
+                -moz-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
+                box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 1);
+            }
+        }
+        &:disabled {
+            background: lightgray;
+            &:hover {
+                cursor: not-allowed;
+            }
         }
         
     }

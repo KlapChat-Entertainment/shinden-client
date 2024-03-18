@@ -50,16 +50,21 @@
             </div>
         </div>
         <main class="loginMain">
-            <h2>Logowanie na shinden.pl</h2>
-            <form>
-                <input required type="email" name="email" id="email" placeholder="Email">
-                <input required type="password" name="password" id="password" placeholder="Hasło">
-                <button type="submit">Zaloguj się</button>
-            </form>
-            <button type="button" id="clearCookies">Wyloguj się</button>
-            <div class="loginInfo">
-                <h2>Status logowania</h2>
-                <p id="loginStatus">Brak danych logowania w pamięci.</p>
+            <div class="loginForm">
+                <h2>Logowanie na shinden.pl</h2>
+                <form>
+                    <input required type="email" name="email" id="email" placeholder="Email">
+                    <input required type="password" name="password" id="password" placeholder="Hasło">
+                    <button id="login" type="submit">Zaloguj się</button>
+                </form>
+                <button type="button" id="clearCookies">Wyloguj się</button>
+            </div>
+            <div class="profileInfo">
+                <img width="225px" height="225px" class="userImage" src="">
+                <div class="loginInfo">
+                    <h2>Status logowania</h2>
+                    <p id="loginStatus">Brak danych logowania w pamięci.</p>
+                </div>
             </div>
         </main>
     </div>
