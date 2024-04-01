@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-    import { loadingState } from "./stores";
+    import { loadingState, logViewerStatus } from "./stores";
 	import { AppState, LoadingState } from "./types";
 
     let startTime: number, endTime: number, operationTime: number;
@@ -19,9 +19,13 @@
             operationEnded = false;
         }
     }
+
+    async function handleClick() {
+        $logViewerStatus = !$logViewerStatus;
+    }
 </script>
 
-<div class="h-9 flex gap-2 items-center font-bold text-lg">
+<button type="button" on:click={handleClick} class="h-9 flex gap-2 items-center font-bold text-lg">
     {#if $loadingState == LoadingState.LOADING}
         <svg class="w-9" version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
         viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
@@ -48,4 +52,4 @@
     {#if operationEnded && $page.url.pathname != AppState.HOME}
         <div class="text-white text-sm font-normal">{operationTime.toFixed()}ms</div>
     {/if}
-</div>
+</button>

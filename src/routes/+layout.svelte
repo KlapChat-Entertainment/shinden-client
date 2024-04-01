@@ -1,6 +1,10 @@
 <script lang="ts">
     import '$lib/app.css';
+    import LogViewer from '$lib/logs/LogViewer.svelte';
+	import { LogLevel, log } from '$lib/logs/logApi';
     import NavBar from '$lib/navigation/NavBar.svelte';
+
+    log(LogLevel.SUCCESS, "Frontend loaded");
 </script>
 
 <!--
@@ -14,3 +18,5 @@
 <div class="h-[664px] w-full overflow-y-auto bg-gray-800">
     <slot />
 </div>
+
+<LogViewer />
