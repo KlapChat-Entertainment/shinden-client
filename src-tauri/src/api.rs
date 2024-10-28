@@ -242,12 +242,17 @@ impl<T, State> Future for StateWaiter<T, State> {
 	type Output = T;
 	fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
 		match *self.state.lock().unwrap() {
-			ref state @ FutureState::NewState(ref value) => {
-				// SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY:
-				// This is safe, since the value is immediately rewritten.
-				let state: *const _ = state;
+			ref mut state @ FutureState::NewState(_) => {
+				let waker = cx.waker().clone();
+				// SAFETY: We take out the value and immediately replace the variant.
+				// There are no intermediate calls that could interfere here.
 				unsafe {
-					std::ptr::write(state.cast_mut(), FutureState::Pending(cx.waker().clone(), std::ptr::read(value)));
+					let value = match std::ptr::read(state) {
+						FutureState::NewState(value) => value,
+						// We are sure this is the variant
+						_ => std::hint::unreachable_unchecked(),
+					};
+					std::ptr::write(state, FutureState::Pending(waker, value));
 				}
 				Poll::Pending
 			}
@@ -255,13 +260,13 @@ impl<T, State> Future for StateWaiter<T, State> {
 				*waker = cx.waker().clone();
 				Poll::Pending
 			}
-			ref state @ FutureState::Finsihed(ref value) => {
-				// SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY SAFETY:
-				// This is safe, since the value is immediately rewritten.
-				let state: *const _ = state;
-				let result = Poll::Ready(unsafe { std::ptr::read(value) });
-				unsafe { std::ptr::write(state.cast_mut(), FutureState::Taken); }
-				result
+			ref mut state @ FutureState::Finsihed(_) => {
+				let value = match std::mem::replace(state, FutureState::Taken) {
+					FutureState::Finsihed(value) => value,
+					// We are sure this is the variant
+					_ => unsafe { std::hint::unreachable_unchecked() }
+				};
+				Poll::Ready(value)
 			}
 			FutureState::Taken => panic!("Future polled after it yielded ready"),
 		}
