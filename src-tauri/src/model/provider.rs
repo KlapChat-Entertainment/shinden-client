@@ -1,4 +1,4 @@
-use super::{Anime, Episode, Player, PlayerEmbed};
+use super::{Anime, Episode, Player};
 pub use reqwest::Error as NetworkError;
 use std::sync::Arc;
 
@@ -9,8 +9,8 @@ pub trait Provider {
 	fn search_anime(self: Arc<Self>, name: &str, cb: Cb<AnimeSearchResult, AnimeSearchError>);
 	fn load_description(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), FetchError>);
 	fn load_episode_list(self: Arc<Self>, anime: Arc<Anime>, cb: Cb<(), FetchError>);
-	fn load_players(self: Arc<Self>, episode: Arc<Episode>, cb: Cb<(), NetworkError>);
-	fn get_player_embed(self: Arc<Self>, player: &Player, cb: Cb<PlayerEmbed, NetworkError>);
+	fn load_players(self: Arc<Self>, episode: Arc<Episode>, cb: Cb<(), FetchError>);
+	fn get_player_embed(self: Arc<Self>, player: Arc<Player>, cb: Cb<(), FetchError>);
 
 	// Session API
 	// TODO
@@ -20,6 +20,7 @@ pub trait Provider {
 pub enum FetchError {
 	Network(NetworkError),
 	Parse(&'static str),
+	Other(&'static str),
 }
 
 impl std::fmt::Display for FetchError {
@@ -27,6 +28,7 @@ impl std::fmt::Display for FetchError {
 		match self {
 			Self::Network(network) => network.fmt(f),
 			Self::Parse(str) => write!(f, "failed to parse response: {str}"),
+			Self::Other(str) => f.write_str(str),
 		}
 	}
 }
@@ -36,6 +38,7 @@ impl std::error::Error for FetchError {
 		match self {
 			Self::Network(error) => Some(error),
 			Self::Parse{..} => None,
+			Self::Other{..} => None,
 		}
 	}
 }

@@ -210,6 +210,27 @@ impl APIEpisode {
 	}
 }
 
+#[derive(serde::Serialize)]
+pub struct APIPlayerInfo {
+	source: SourceKey,
+	quality: QualityKey,
+	audio_lang: LangKey,
+	subtitle_lang: LangKey,
+	//link: &'static str,
+}
+
+impl APIPlayerInfo {
+	fn get(api: &ApiState, player: &Player) -> Self {
+		let mut cache = api.anime_cache.lock().unwrap();
+		APIPlayerInfo {
+			source: cache.get_store_key(&player.source),
+			quality: cache.get_store_key(&player.quality),
+			audio_lang: LangKey::from(player.audio_lang),
+			subtitle_lang: LangKey::from(player.subtitle_lang),
+		}
+	}
+}
+
 enum FutureState<T, State = ()> {
 	NewState(State),
 	Pending(std::task::Waker, State),
@@ -290,6 +311,10 @@ impl From<FetchError> for APIError {
 				kind: "parse",
 				msg: error.into(),
 			},
+			FetchError::Other(error) => Self {
+				kind: "other",
+				msg: error.into(),
+			},
 		}
 	}
 }
@@ -305,6 +330,14 @@ impl APIError {
 	pub fn unimplemented(msg: impl Into<Cow<'static, str>>) -> Self {
 		Self {
 			kind: "unimplemented",
+			msg: msg.into(),
+		}
+	}
+
+	#[inline(always)]
+	pub fn request(msg: impl Into<Cow<'static, str>>) -> Self {
+		Self {
+			kind: "request",
 			msg: msg.into(),
 		}
 	}
@@ -412,6 +445,117 @@ pub fn get_anime_details(api: State<'_, Arc<ApiState>>, online_id: u32) -> impl 
 	} else {
 		StateWaiter::resolved(Err(APIError::unimplemented("Anime is not loaded yet")))
 	}
+}
+
+#[tauri::command(async)]
+pub fn get_episode_player_list(api: State<'_, Arc<ApiState>>, anime_id: u32, episode_index: u32) -> impl Future<Output = Result<Vec<APIPlayerInfo>, APIError>> + Send + Sync {
+	let anime = {
+		let cache = api.anime_cache.lock().unwrap();
+		let Some(anime) = cache.get(anime_id) else {
+			return StateWaiter::resolved(Err(APIError::unimplemented("Anime is not loaded yet")));
+		};
+		anime
+	};
+	let Some(episodes) = anime.episodes.get() else {
+		return StateWaiter::resolved(Err(APIError::unimplemented("Episodes are not loaded yet")));
+	};
+
+	let episode = match episodes.binary_search_by_key(&episode_index, |ep| ep.index) {
+		Ok(episode) => &episodes[episode],
+		Err(_) => return StateWaiter::resolved(Err(APIError::request("Episode with given index doesn't exist"))),
+	};
+
+	// Maybe we have a cached answer
+	if let Some(players) = episode.players.get() {
+		let players = players.iter()
+			.map(|player| APIPlayerInfo::get(&api, player))
+			.collect();
+		return StateWaiter::resolved(Ok(players));
+	}
+
+	let provider = match api.get_provider() {
+		Ok(prov) => prov,
+		Err(()) => return StateWaiter::resolved(Err(APIError::NoProvider)),
+	};
+	let state = Arc::new(Mutex::new(FutureState::New));
+	{
+		let state = state.clone();
+		let episode = episode.clone();
+		let api = Arc::clone(&api);
+		provider.load_players(episode.clone(), Box::new(move |result| {
+			let mut state = state.lock().unwrap();
+			let result = match result {
+				Ok(()) => {
+					let players = episode.players.get().unwrap()
+						.iter()
+						.map(|player| APIPlayerInfo::get(&api, player))
+						.collect();
+					Ok(players)
+				}
+				Err(err) => Err(err.into()),
+			};
+			if let FutureState::Pending(waker, ..) = std::mem::replace(&mut *state, FutureState::Finsihed(result)) {
+				waker.wake();
+			}
+		}));
+	}
+	StateWaiter::new(state)
+}
+
+#[tauri::command(async)]
+pub fn get_player_embed(api: State<'_, Arc<ApiState>>, anime_id: u32, episode_index: u32, player_index: u32) -> impl Future<Output = Result<Box<str>, APIError>> + Send + Sync {
+	let anime = {
+		let cache = api.anime_cache.lock().unwrap();
+		let Some(anime) = cache.get(anime_id) else {
+			return StateWaiter::resolved(Err(APIError::unimplemented("Anime is not loaded yet")));
+		};
+		anime
+	};
+	let Some(episodes) = anime.episodes.get() else {
+		return StateWaiter::resolved(Err(APIError::unimplemented("Episodes are not loaded yet")));
+	};
+
+	let episode = match episodes.binary_search_by_key(&episode_index, |ep| ep.index) {
+		Ok(episode) => &episodes[episode],
+		Err(_) => return StateWaiter::resolved(Err(APIError::request("Episode with given index doesn't exist"))),
+	};
+
+	let Some(players) = episode.players.get() else {
+		return StateWaiter::resolved(Err(APIError::unimplemented("Players are not loaded yet")));
+	};
+
+	let Some(player) = players.get(player_index as usize) else {
+		return StateWaiter::resolved(Err(APIError::request("Player index out of range")));
+	};
+
+	// Maybe we have a cached answer
+	if let Some(embed) = player.embed.get() {
+		return StateWaiter::resolved(Ok(Box::<str>::from(&*embed.raw_html)));
+	}
+
+	let provider = match api.get_provider() {
+		Ok(prov) => prov,
+		Err(()) => return StateWaiter::resolved(Err(APIError::NoProvider)),
+	};
+	let state = Arc::new(Mutex::new(FutureState::New));
+	{
+		let state = state.clone();
+		let player = player.clone();
+		provider.get_player_embed(player.clone(), Box::new(move |result| {
+			let mut state = state.lock().unwrap();
+			let result = match result {
+				Ok(()) => {
+					let embed = player.embed.get().unwrap();
+					Ok(Box::<str>::from(&*embed.raw_html))
+				}
+				Err(err) => Err(err.into()),
+			};
+			if let FutureState::Pending(waker, ..) = std::mem::replace(&mut *state, FutureState::Finsihed(result)) {
+				waker.wake();
+			}
+		}));
+	}
+	StateWaiter::new(state)
 }
 
 #[tauri::command]

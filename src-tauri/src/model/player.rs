@@ -1,3 +1,5 @@
+use std::{any::Any, sync::OnceLock};
+
 use super::{PlayerEmbed, types::Lang};
 
 pub struct Player {
@@ -5,9 +7,8 @@ pub struct Player {
 	pub quality: Quality,
 	pub audio_lang: Lang,
 	pub subtitle_lang: Lang,
-	pub embed: Option<PlayerEmbed>,
-	/// Only used by the provider
-	pub online_id: String,
+	pub embed: OnceLock<PlayerEmbed>,
+	pub provider_data: Option<Box<dyn Any + Send + Sync>>,
 }
 
 pub type Quality = String;

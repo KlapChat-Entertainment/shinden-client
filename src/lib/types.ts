@@ -34,3 +34,11 @@ export type EpisodeInfo = {
     index: number,
     link: string,
 };
+
+export type PlayerInfo = {
+    index: number,
+    source: string,
+    quality: string,
+    audio_lang: string,
+    subtitle_lang: string,
+};

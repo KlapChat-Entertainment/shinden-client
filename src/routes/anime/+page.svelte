@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
 	import AnimeFullCard from "$lib/anime/AnimeFullCard.svelte";
-	import { loadingState, selectedAnimeId } from "$lib/stores";
+	import { loadingState, selectedAnimeId, selectedAnime } from "$lib/stores";
 	import { LoadingState, type AnimeDetails } from "$lib/types";
 	import { onMount } from 'svelte';
 	$loadingState = LoadingState.LOADING;
@@ -14,6 +14,7 @@
 			const anime: AnimeDetails = await invoke('get_anime_details', { 'onlineId': $selectedAnimeId });
 
 			loadedAnimeDetails = anime;
+			$selectedAnime = anime;
 
 			$loadingState = LoadingState.SUCCESS;
 		} catch(err) {

@@ -1,11 +1,24 @@
-use crate::model::{*, provider::*};
+use crate::model::{*, provider::*, types::*};
 use super::utils::NodeRefExt;
 use cookie::Cookie;
 use reqwest::{Client as HttpClient, Url};
 use tokio::sync::RwLock;
-use std::sync::{Arc, OnceLock};
+use std::{marker::PhantomData, str::FromStr, sync::{Arc, OnceLock}};
 
 const SHINDEN_HOST: &str = "https://shinden.pl";
+const SHINDEN_API_XHR_BASE: &str = "https://api4.shinden.pl/xhr";
+
+#[inline]
+fn pipe_cookie(cookie: reqwest::cookie::Cookie) -> Cookie {
+	use reqwest::cookie::Cookie as RCookie;
+	use std::mem::*;
+	const _: () = assert!(size_of::<RCookie>() == size_of::<Cookie>());
+	const _: () = assert!(align_of::<RCookie>() == align_of::<Cookie>());
+	unsafe {
+		// Reqwest cookie is really a wrapper around Cookie
+		transmute(cookie)
+	}
+}
 
 struct MutState {
 	żeson_web_token: String,
@@ -18,6 +31,34 @@ pub struct ShindenProvider {
 
 	shinden_url: Url,
 	client: HttpClient,
+}
+
+struct PlayerData {
+	online_id: u32,
+}
+
+time::serde::format_description!(date_string, PrimitiveDateTime, "[year]-[month]-[day] [hour]:[minute]:[second]");
+
+struct NumString<T>(T);
+
+impl<'de, T: FromStr<Err: std::fmt::Display>> serde::de::Deserialize<'de> for NumString<T> {
+	fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+		struct Visitor<T>(PhantomData<T>);
+
+		impl<'de, T: FromStr<Err: std::fmt::Display>> serde::de::Visitor<'de> for Visitor<T> {
+			type Value = NumString<T>;
+		
+			fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+				formatter.write_str("a stringified value")
+			}
+
+			fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E> {
+				v.parse().map(NumString).map_err(serde::de::Error::custom)
+			}
+		}
+
+		deserializer.deserialize_str(Visitor(PhantomData))
+	}
 }
 
 #[inline]
@@ -78,6 +119,15 @@ impl ShindenProvider {
 		}
 
 		response.text().await
+	}
+
+	async fn fetch_url_no_cookies(&self, url: Url, headers: hyper::HeaderMap) -> reqwest::Result<reqwest::Response> {
+		let request = self.client.get(url)
+			.headers(headers)
+			.build()?;
+		// TODO: Redirects with same-site?
+
+		self.client.execute(request).await
 	}
 
 	fn parse_anime_from_html(&self, html: String) -> Result<AnimeSearchResult, AnimeSearchError> {
@@ -215,6 +265,124 @@ impl ShindenProvider {
 		episodes.sort_by_key(|ep| ep.index);
 		Ok(episodes)
 	}
+
+	fn parse_players_from_html(&self, html: String) -> Result<Vec<Arc<Player>>, FetchError> {
+		macro_rules! select_one {
+			($node:expr, $sel:expr) => {
+				$node.select_first($sel).map_err(|_| FetchError::Parse(concat!("select one: ", stringify!($sel))))?
+			};
+		}
+
+		/* JSON structure:
+			"online_id": "numeric_id"
+			"player": "Player name"
+			"username": ""
+			"user_id": "numeric_id or 1"
+			"lang_audio": "lc" // Stands for language code
+			"lang_subs": "lc"
+			"max_res": "resolution"
+			"subs_author": null | "Subtitle author"
+			"added": "%04Y-%02M-%02D %02H:%02M:%02S"
+			"source": null | "link with escaped \/"
+		*/
+		#[derive(serde::Deserialize)]
+		#[allow(dead_code)]
+		struct ShindenPlayer {
+			online_id: NumString<u32>,
+			player: String,
+			username: String,
+			user_id: NumString<u32>,
+			lang_audio: Lang,
+			lang_subs: Lang,
+			max_res: String,
+			subs_author: Option<String>,
+			#[serde(with = "date_string")]
+			added: time::PrimitiveDateTime,
+			source: Option<String>,
+		}
+
+		let tree = tauri::utils::html::parse(html);
+		let episode_list_section = select_one!(tree, ".episode-player-list");
+		let episode_table = select_one!(episode_list_section.as_node(), "tbody");
+		let mut players = Vec::new();
+
+		for row in episode_table.as_node().children().filter_map(|node| node.into_element_ref()) {
+			let Ok(link) = row.as_node().select_first("a") else { continue };
+			let attrs = link.attributes.borrow();
+			let data = match attrs.get("data-episode") {
+				Some(attr) => attr,
+				None => return Err(FetchError::Parse("player data not present")),
+			};
+			//println!("[DBG] Found player data: {data}");
+			let parsed: ShindenPlayer = match serde_json::from_str(&data) {
+				Ok(p) => p,
+				Err(err) => {
+					eprintln!("[ERROR] Failed to parse player JSON: {err}");
+					return Err(FetchError::Parse("invalid player JSON"));
+				}
+			};
+
+			players.push(Arc::new(Player {
+				source: parsed.player,
+				quality: parsed.max_res,
+				audio_lang: parsed.lang_audio,
+				subtitle_lang: parsed.lang_subs,
+				embed: OnceLock::new(),
+				provider_data: Some(Box::new(PlayerData {
+					online_id: parsed.online_id.0,
+				})),
+			}));
+		}
+
+		Ok(players)
+	}
+
+	async fn fetch_player_embed(&self, player_id: u32) -> Result<PlayerEmbed, NetworkError> {
+		let mut base_url = Url::parse(SHINDEN_API_XHR_BASE).unwrap();
+		base_url.path_segments_mut().unwrap()
+			.push(&format!("{player_id}"))
+			.push("");
+		//base_url.query_pairs_mut().append_pair("auth", headers::API_AUTH_TOKEN);
+
+		let mut headers = hyper::HeaderMap::from_iter(headers::API.iter().map(|h| (h.name.clone(), h.value.clone())));
+		
+		// Stage 1: player_load
+		{
+			let mut url = base_url.join("player_load").unwrap();
+			url.query_pairs_mut().append_pair("auth", headers::API_AUTH_TOKEN);
+			//println!("[DBG] Player load url: {url}\nHeaders: {headers:#?}");
+			let response = self.fetch_url_no_cookies(url, headers.clone()).await?;
+
+			let mut cookies = String::new();
+			use std::fmt::Write;
+			for cookie in response.cookies() {
+				write!(cookies, "{};", pipe_cookie(cookie)).unwrap();
+			}
+			if !cookies.is_empty() {
+				headers.append(hyper::header::COOKIE, hyper::header::HeaderValue::try_from(cookies).unwrap());
+			}
+		}
+
+		// There needs to be a delay, apparently (less than 5 seconds returns empty response)
+		tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+
+		// Stage 2: player_show
+		let html = {
+			let mut url = base_url.join("player_show").unwrap();
+			url.query_pairs_mut()
+				.append_pair("auth", headers::API_AUTH_TOKEN)
+				.append_pair("width", "0")
+				.append_pair("height", "-1");
+			//println!("[DBG] Player show url: {url}\nHeaders: {headers:#?}");
+			let response = self.fetch_url_no_cookies(url, headers).await?;
+
+			response.text().await?
+		};
+
+		Ok(PlayerEmbed {
+			raw_html: html,
+		})
+	}
 }
 
 impl Provider for ShindenProvider {
@@ -286,12 +454,51 @@ impl Provider for ShindenProvider {
 		});
 	}
 
-	fn load_players(self: Arc<Self>, episode: Arc<Episode>, cb: Cb<(), NetworkError>) {
-		todo!()
+	fn load_players(self: Arc<Self>, episode: Arc<Episode>, cb: Cb<(), FetchError>) {
+		if episode.players.get().is_some() {
+			cb(Ok(()));
+			return;
+		}
+
+		tokio::spawn(async move {
+			let url = episode.link.clone();
+			let response = self.fetch_url(url).await;
+			match response {
+				Ok(html) => {
+					let res = self.parse_players_from_html(html);
+					match res {
+						Ok(players) => {
+							let _ = episode.players.set(players);
+							cb(Ok(()));
+						}
+						Err(err) => cb(Err(err)),
+					}
+				}
+				Err(err) => cb(Err(FetchError::Network(err))),
+			}
+		});
 	}
 
-	fn get_player_embed(self: Arc<Self>, player: &Player, cb: Cb<PlayerEmbed, NetworkError>) {
-		todo!()
+	fn get_player_embed(self: Arc<Self>, player: Arc<Player>, cb: Cb<(), FetchError>) {
+		if player.embed.get().is_some() {
+			cb(Ok(()));
+			return;
+		}
+
+		tokio::spawn(async move {
+			let player_data = match player.provider_data.as_ref().and_then(|data| data.downcast_ref::<PlayerData>()) {
+				Some(data) => data,
+				None => return cb(Err(FetchError::Other("missing/wrong provider data"))),
+			};
+			let response = self.fetch_player_embed(player_data.online_id).await;
+			match response {
+				Ok(embed) => {
+					let _ = player.embed.set(embed);
+					cb(Ok(()));
+				}
+				Err(err) => cb(Err(FetchError::Network(err))),
+			}
+		});
 	}
 }
 
@@ -360,4 +567,7 @@ mod headers {
 			"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
 		};
 	}
+
+	/// Base64 for: `_guest_:0,5,21000000,255,4174293644`
+	pub const API_AUTH_TOKEN: &str = "X2d1ZXN0XzowLDUsMjEwMDAwMDAsMjU1LDQxNzQyOTM2NDQ=";
 }
