@@ -341,9 +341,11 @@ pub fn search_anime<'a>(api: State<'a, Arc<ApiState>>, anime: &str) -> impl Futu
 
 #[tauri::command(async)]
 pub fn get_anime_details(api: State<'_, Arc<ApiState>>, online_id: u32) -> impl Future<Output = Result<APIAnime, APIError>> + Send + Sync {
-	let api = Arc::clone(&api);
-	let cache = api.anime_cache.lock().unwrap();
-	if let Some(anime) = cache.get(online_id) {
+	let anime = {
+		let cache = api.anime_cache.lock().unwrap();
+		cache.get(online_id)
+	};
+	if let Some(anime) = anime {
 		// Maybe we have a cached answer
 		if anime.description.get().is_some() && anime.episodes.get().is_some() {
 			return StateWaiter::resolved(Ok(APIAnime::get_detailed(anime)));
