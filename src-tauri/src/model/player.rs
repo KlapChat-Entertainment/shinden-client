@@ -1,4 +1,4 @@
-use super::PlayerEmbed;
+use super::{PlayerEmbed, types::Lang};
 
 pub struct Player {
 	pub source: String,
@@ -10,5 +10,4 @@ pub struct Player {
 	pub online_id: String,
 }
 
-pub type Lang = String;
 pub type Quality = String;

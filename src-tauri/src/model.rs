@@ -3,6 +3,7 @@ mod anime;
 mod episode;
 mod player;
 mod player_embed;
+pub mod types;
 
 pub use provider::Provider;
 pub use anime::*;

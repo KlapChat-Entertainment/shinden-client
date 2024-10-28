@@ -9,7 +9,9 @@ use std::{
 	task::Poll,
 	borrow::Cow,
 	collections::hash_map::RandomState,
+	marker::PhantomData,
 };
+use indexmap::IndexSet;
 use tauri::State;
 
 type HashSet<K, H = RandomState> = hashbrown::HashMap<K, (), H>;
@@ -19,8 +21,70 @@ pub struct ApiState {
 	anime_cache: Mutex<AnimeCache>,
 }
 
+trait APIStoreKey {
+	fn get(cache: &mut AnimeCache) -> &mut APIStringStore;
+}
+
+macro_rules! api_store_key {
+	{$(
+		$name:ident => $store:ident ;
+	)*} => {$(
+		pub enum $name {}
+		impl APIStoreKey for $name {
+			#[inline(always)] fn get(cache: &mut AnimeCache) -> &mut APIStringStore { &mut cache.$store }
+		}
+	)*};
+}
+
+api_store_key! {
+	SourcesStore => sources_store;
+	QualityStore => quality_store;
+	//LanguageStore => language_store;
+}
+
+#[derive(serde::Serialize)]
+#[serde(transparent)]
+struct APIStringKey<Set: APIStoreKey>(u32, PhantomData<fn() -> Set>);
+
+type SourceKey = APIStringKey<SourcesStore>;
+type QualityKey = APIStringKey<QualityStore>;
+//type LangKey = APIStringKey<LanguageStore>;
+/// Directly transmit as a number
+type LangKey = u16;
+
+struct APIStringStore {
+	map: IndexSet<Box<str>>,
+}
+
+impl APIStringStore {
+	fn new() -> Self {
+		Self {
+			map: IndexSet::new(),
+		}
+	}
+
+	fn get_key(&mut self, key: &str) -> u32 {
+		if let Some(idx) = self.map.get_index_of(key) {
+			idx as u32
+		} else {
+			// This will technically leave the very last key value unused, but that's not a big deal
+			if self.map.len() == u32::MAX as usize {
+				panic!("String map reached its theoretical capacity!!");
+			}
+			self.map.insert_full(Box::from(key)).0 as u32
+		}
+	}
+
+	fn get_from(&self, start: u32) -> impl Iterator<Item = &str> {
+		self.map.as_slice()[start as usize..].iter().map(|x| &**x)
+	}
+}
+
 pub struct AnimeCache {
 	anime: HashSet<Arc<Anime>>,
+	sources_store: APIStringStore,
+	quality_store: APIStringStore,
+	//language_store: APIStringStore,
 }
 
 impl AnimeCache {
@@ -45,6 +109,11 @@ impl AnimeCache {
 		id.hash(&mut hasher);
 		hasher.finish()
 	}
+
+	fn get_store_key<Set: APIStoreKey>(&mut self, key: &str) -> APIStringKey<Set> {
+		let store = Set::get(self);
+		APIStringKey(store.get_key(key), PhantomData)
+	}
 }
 
 impl ApiState {
@@ -53,6 +122,8 @@ impl ApiState {
 			provider: Some(Arc::new(ShindenProvider::new())),
 			anime_cache: Mutex::new(AnimeCache {
 				anime: HashSet::with_hasher(RandomState::new()),
+				sources_store: APIStringStore::new(),
+				quality_store: APIStringStore::new(),
 			}),
 		})
 	}
@@ -334,4 +405,18 @@ pub fn get_anime_details(api: State<'_, Arc<ApiState>>, online_id: u32) -> impl 
 	} else {
 		StateWaiter::resolved(Err(APIError::unimplemented("Anime is not loaded yet")))
 	}
+}
+
+#[tauri::command]
+pub fn get_interned_strings(api: State<'_, Arc<ApiState>>, source_from: Option<u32>, quality_from: Option<u32>) -> serde_json::Value {
+	use serde_json::{Value, Map};
+	let mut result = Map::new();
+	let cache = api.anime_cache.lock().unwrap();
+	if let Some(source_from) = source_from {
+		result.insert("source".into(), Value::Array(cache.sources_store.get_from(source_from).map(|s| Value::String(s.into())).collect()));
+	}
+	if let Some(quality_from) = quality_from {
+		result.insert("quality".into(), Value::Array(cache.quality_store.get_from(quality_from).map(|s| Value::String(s.into())).collect()));
+	}
+	Value::Object(result)
 }

@@ -13,6 +13,7 @@ fn main() {
       //api::create_api_backend,
       api::search_anime,
       api::get_anime_details,
+      api::get_interned_strings,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
