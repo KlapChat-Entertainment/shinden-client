@@ -1,12 +1,11 @@
 <script lang="ts">
     import { invoke } from '@tauri-apps/api/tauri';
     import { onMount } from 'svelte';
-	import ResultsTable from "$lib/searchResult/ResultsTable.svelte";
-    import { loadingState } from "$lib/stores";
-	import { LoadingState, type AnimeSearchResult, AppState } from "$lib/types";
+    import ResultsTable from "$lib/searchResult/ResultsTable.svelte";
+    import { LoadingState, AppState, type AnimeSearchResult } from "$lib/types";
     import { animeName } from "$lib/stores";
-	import { goto } from '$app/navigation';
-    $loadingState = LoadingState.LOADING;
+    import { goto } from '$app/navigation';
+    import { asyncTask } from '$lib/logs/logApi';
 
     let results: Array<AnimeSearchResult> = new Array<AnimeSearchResult>();
 
@@ -15,7 +14,7 @@
             await goto(AppState.HOME);
             return;
         }
-        try {
+        await asyncTask(async () => {
             const anime = await invoke<Array<AnimeSearchResult>>('search_anime', { 'anime': $animeName });
 
             if(anime.length > 0) {
@@ -27,14 +26,11 @@
 
                 results = anime;
 
-                $loadingState = LoadingState.SUCCESS;
+                return LoadingState.SUCCESS;
             } else {
-                $loadingState = LoadingState.WARNING;
+                return LoadingState.WARNING;
             }
-        } catch(err) {
-            console.error('Oh noes!', err);
-            $loadingState = LoadingState.FAILED;
-        }
+        })();
     });
 
 </script>

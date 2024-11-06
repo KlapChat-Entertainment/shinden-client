@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import type { AnimeDetails, EmbedInfo, EpisodeInfo, PlayerInfo } from "./types";
+import type { APIError, AnimeDetails, EmbedInfo, EpisodeInfo, PlayerInfo } from "./types";
 
 export type StringStoreKey = 'source' | 'quality' /*| 'lang'*/;
 export type StringStores = Record<StringStoreKey, string[]>;
@@ -64,4 +64,12 @@ export async function getPlayers(anime: AnimeDetails, episode: EpisodeInfo) {
 
 export async function getPlayerEmbed(anime: AnimeDetails, episode: EpisodeInfo, player: PlayerInfo) {
 	return await invoke<EmbedInfo>('get_player_embed', { 'animeId': anime.online_id, 'episodeIndex': episode.index, 'playerIndex': player.index });
+}
+
+export function isApiError(error: any): APIError | null {
+	// Maybe check more carefully?
+	if (typeof error.kind === 'string' && typeof error.msg === 'string') {
+		return error as APIError;
+	}
+	return null;
 }

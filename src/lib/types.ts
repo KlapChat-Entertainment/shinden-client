@@ -13,6 +13,11 @@ export enum AppState {
     WATCHING = "/watching"
 };
 
+export type APIError = {
+    kind: string;
+    msg: string;
+};
+
 export type AnimeSearchResult = {
     name: string,
     link_to_series: string,
