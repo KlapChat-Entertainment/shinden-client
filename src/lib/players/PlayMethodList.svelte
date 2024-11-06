@@ -26,7 +26,7 @@
 		if (embed.direct_link == null)
 			throw new Error('No direct link found');
 
-		// TODO
+		await launchExternalPlayer(embed.direct_link);
 	}
 
 	async function playVideo() {

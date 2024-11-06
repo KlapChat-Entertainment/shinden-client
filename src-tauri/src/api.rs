@@ -602,3 +602,61 @@ pub fn get_interned_strings(api: State<'_, Arc<ApiState>>, source_from: Option<u
 	}
 	Value::Object(result)
 }
+
+#[tauri::command]
+pub fn launch_ext_player(url: &str) -> Result<(), APIError> {
+	let base = reqwest::Url::parse("https://a").unwrap();
+	let mut url = match base.join(url) {
+		Ok(url) => url,
+		Err(_) => return Err(APIError::request("Invalid URL")),
+	};
+	// Enforce https
+	if url.set_scheme("https").is_err() {
+		return Err(APIError::request("URL has invalid scheme"));
+	}
+	/// TODO: Make it configurable
+	const EXTERNAL_PLAYER_NAME: &'static str = "mpv";
+	let mut cmd = std::process::Command::new(EXTERNAL_PLAYER_NAME);
+	cmd
+		//.arg("--")
+		.arg(url.as_str());
+	//println!("[DBG] Launching external player: {cmd:#?}");
+	match cmd.spawn() {
+		Ok(_proc) => {
+			println!("[INFO] Launched external player for video!");
+		}
+		Err(_) => return Err(APIError { kind: "system", msg: "external player command failed".into() }),
+	}
+	Ok(())
+}
+
+#[cfg(test)]
+mod url_test {
+	use reqwest::Url;
+
+	fn base() -> Url {
+		Url::parse("https://a").unwrap()
+	}
+
+	#[test]
+	fn scheme_base() {
+		base();
+	}
+
+	#[test]
+	fn schemeless_url() {
+		let base = base();
+		let test_url = "//www.example.com/";
+		let url = base.join(&test_url).unwrap();
+		assert_eq!(url.as_str(), "https://www.example.com/");
+	}
+
+	#[test]
+	fn scheme_swap() {
+		let base = base();
+		let test_url = "http://www.example.com/";
+		let mut url = base.join(&test_url).unwrap();
+		url.set_scheme("https").unwrap();
+		assert_eq!(url.as_str(), "https://www.example.com/");
+	}
+}

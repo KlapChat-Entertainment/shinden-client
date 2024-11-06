@@ -17,6 +17,7 @@ fn main() {
       api::get_episode_player_list,
       api::get_player_embed,
       api::get_interned_strings,
+      api::launch_ext_player,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

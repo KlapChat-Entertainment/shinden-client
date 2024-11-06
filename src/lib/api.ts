@@ -66,6 +66,10 @@ export async function getPlayerEmbed(anime: AnimeDetails, episode: EpisodeInfo, 
 	return await invoke<EmbedInfo>('get_player_embed', { 'animeId': anime.online_id, 'episodeIndex': episode.index, 'playerIndex': player.index });
 }
 
+export async function launchExternalPlayer(url: string) {
+	return await invoke('launch_ext_player', { url });
+}
+
 export function isApiError(error: any): APIError | null {
 	// Maybe check more carefully?
 	if (typeof error.kind === 'string' && typeof error.msg === 'string') {
