@@ -3,4 +3,4 @@
 </script>
 
 <!-- TODO: Add icons -->
-<img class="text-xs" width="32" height="32" title={player} alt={player} />
+<img class="text-xs w-12 h-12" title={player} alt={player} />

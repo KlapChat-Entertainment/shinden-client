@@ -49,7 +49,7 @@ export type PlayerInfo = {
 };
 
 export type EmbedInfo = {
-    original?: string,
-    embed: string,
-    direct_link?: string,
+    original: string | null,
+    embed: string | null,
+    direct_link: string | null,
 };
