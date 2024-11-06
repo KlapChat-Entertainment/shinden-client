@@ -231,6 +231,37 @@ impl APIPlayerInfo {
 	}
 }
 
+/// **Warning**: it's unsafe to construct this without an embed inside `player`.
+pub struct APIEmbed {
+	player: Arc<Player>,
+	_unsafe_validation_check: (),
+}
+
+impl APIEmbed {
+	#[inline]
+	pub fn from_player_check(player: &Arc<Player>) -> Option<Self> {
+		if let Some(_) = player.embed.get() {
+			Some(unsafe { Self::from_player_unchecked(player.clone()) })
+		} else {
+			None
+		}
+	}
+
+	#[inline(always)]
+	pub const unsafe fn from_player_unchecked(player: Arc<Player>) -> Self {
+		Self { player, _unsafe_validation_check: () }
+	}
+}
+
+impl serde::Serialize for APIEmbed {
+	fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+		// Constructing means we have an embed
+		unsafe {
+			self.player.embed.get().unwrap_unchecked().serialize(serializer)
+		}
+	}
+}
+
 enum FutureState<T, State = ()> {
 	NewState(State),
 	Pending(std::task::Waker, State),
@@ -503,7 +534,7 @@ pub fn get_episode_player_list(api: State<'_, Arc<ApiState>>, anime_id: u32, epi
 }
 
 #[tauri::command(async)]
-pub fn get_player_embed(api: State<'_, Arc<ApiState>>, anime_id: u32, episode_index: u32, player_index: u32) -> impl Future<Output = Result<Box<str>, APIError>> + Send + Sync {
+pub fn get_player_embed(api: State<'_, Arc<ApiState>>, anime_id: u32, episode_index: u32, player_index: u32) -> impl Future<Output = Result<APIEmbed, APIError>> + Send + Sync {
 	let anime = {
 		let cache = api.anime_cache.lock().unwrap();
 		let Some(anime) = cache.get(anime_id) else {
@@ -529,8 +560,8 @@ pub fn get_player_embed(api: State<'_, Arc<ApiState>>, anime_id: u32, episode_in
 	};
 
 	// Maybe we have a cached answer
-	if let Some(embed) = player.embed.get() {
-		return StateWaiter::resolved(Ok(Box::<str>::from(&*embed.raw_html)));
+	if let Some(embed) = APIEmbed::from_player_check(player) {
+		return StateWaiter::resolved(Ok(embed));
 	}
 
 	let provider = match api.get_provider() {
@@ -545,8 +576,8 @@ pub fn get_player_embed(api: State<'_, Arc<ApiState>>, anime_id: u32, episode_in
 			let mut state = state.lock().unwrap();
 			let result = match result {
 				Ok(()) => {
-					let embed = player.embed.get().unwrap();
-					Ok(Box::<str>::from(&*embed.raw_html))
+					assert!(player.embed.get().is_some());
+					Ok(unsafe { APIEmbed::from_player_unchecked(player) })
 				}
 				Err(err) => Err(err.into()),
 			};

@@ -42,3 +42,9 @@ export type PlayerInfo = {
     audio_lang: string,
     subtitle_lang: string,
 };
+
+export type EmbedInfo = {
+    original?: string,
+    embed: string,
+    direct_link?: string,
+};

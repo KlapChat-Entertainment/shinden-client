@@ -398,8 +398,40 @@ impl ShindenProvider {
 			response.text().await?
 		};
 
+		let (embed, link) = 'embed: {
+			let mut tree = tauri::utils::html::parse(html.clone());
+			let mut iframe = None;
+			// Get tree's inner content
+			tree = tree.select_first("body").unwrap().as_node().clone();
+			for child in tree.children() {
+				if let Some(element) = child.as_element() {
+					if *element.name.local == *"iframe" {
+						match iframe {
+							Some(_) => break 'embed (None, None),
+							None => iframe = Some(child),
+						}
+					}
+				}
+			}
+
+			(iframe
+				.as_ref().map(tauri::utils::html::serialize_node)
+				.as_deref().map(String::from_utf8_lossy)
+				.map(std::borrow::Cow::into_owned)
+				.map(String::into_boxed_str),
+			iframe
+				.as_ref().and_then(|iframe| iframe.as_element())
+				.and_then(
+					|iframe| iframe.attributes.borrow().get("src")
+					.map(Box::<str>::from)
+				)
+			)
+		};
+
 		Ok(PlayerEmbed {
-			raw_html: html,
+			raw_html: html.into_boxed_str(),
+			embed_src: embed,
+			direct_link: link,
 		})
 	}
 }
