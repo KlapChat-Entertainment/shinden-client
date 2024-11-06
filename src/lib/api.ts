@@ -54,7 +54,7 @@ export async function getPlayers(anime: AnimeDetails, episode: EpisodeInfo) {
 		const nplayer = player as unknown as PlayerInfo;
 		nplayer.index = index;
 		nplayer.source = getIndexedStringNoFetch('source', player.source);
-		nplayer.quality = getIndexedStringNoFetch('quality', player.source);
+		nplayer.quality = getIndexedStringNoFetch('quality', player.quality);
 		nplayer.audio_lang = getLanguageFromCode(player.audio_lang);
 		nplayer.subtitle_lang = getLanguageFromCode(player.subtitle_lang);
 		++index;
