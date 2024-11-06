@@ -1,4 +1,5 @@
 use crate::model::{*, provider::*, types::*};
+use crate::serde_helper::deserialize_bytes_str;
 use super::utils::NodeRefExt;
 use cookie::Cookie;
 use reqwest::{Client as HttpClient, Url};
@@ -59,6 +60,18 @@ impl<'de, T: FromStr<Err: std::fmt::Display>> serde::de::Deserialize<'de> for Nu
 
 		deserializer.deserialize_str(Visitor(PhantomData))
 	}
+}
+
+fn parse_shinden_lang<'de, D: serde::de::Deserializer<'de>>(de: D) -> Result<Lang, D::Error> {
+	deserialize_bytes_str(de, |v| {
+		match v {
+			[] => Some(Lang::NULL),
+			&[a, b] => Lang::from_letters(a, b),
+			// Corner case
+			b"ipl" => Lang::from_letters(b'p', b'l'),
+			_ => None,
+		}
+	}, "Shinden-formatted IETF-like language code")
 }
 
 #[inline]
@@ -290,9 +303,11 @@ impl ShindenProvider {
 		struct ShindenPlayer {
 			online_id: NumString<u32>,
 			player: String,
-			username: String,
-			user_id: NumString<u32>,
+			username: Option<String>,
+			user_id: Option<NumString<u32>>,
+			#[serde(deserialize_with = "parse_shinden_lang")]
 			lang_audio: Lang,
+			#[serde(deserialize_with = "parse_shinden_lang")]
 			lang_subs: Lang,
 			max_res: String,
 			subs_author: Option<String>,
@@ -314,10 +329,14 @@ impl ShindenProvider {
 				None => return Err(FetchError::Parse("player data not present")),
 			};
 			//println!("[DBG] Found player data: {data}");
-			let parsed: ShindenPlayer = match serde_json::from_str(&data) {
+			let parsed: ShindenPlayer = match serde_json::from_str(data) {
 				Ok(p) => p,
 				Err(err) => {
 					eprintln!("[ERROR] Failed to parse player JSON: {err}");
+					eprintln!("[DBG] Raw JSON: {data}");
+					if let Ok(json) = serde_json::from_str::<serde_json::Value>(data) {
+						eprintln!("[DBG] Parsed JSON: {json:#?}");
+					};
 					return Err(FetchError::Parse("invalid player JSON"));
 				}
 			};
