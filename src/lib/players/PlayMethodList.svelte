@@ -34,7 +34,8 @@
 		if (embed.direct_link == null && embed.embed == null)
 			throw new Error('No embed found');
 
-		// TODO
+		$selectedPlayer = embed;
+		await goto(AppState.WATCHING);
 	}
 </script>
 
